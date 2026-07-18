@@ -10,6 +10,12 @@ public final class DrumEngine: @unchecked Sendable {
         /// 0 ..< beatsPerBar
         public var beat: Double
         public var isPlaying: Bool
+
+        public init(barIndex: Int, beat: Double, isPlaying: Bool) {
+            self.barIndex = barIndex
+            self.beat = beat
+            self.isPlaying = isPlaying
+        }
     }
 
     private let engine = AVAudioEngine()
