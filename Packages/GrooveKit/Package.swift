@@ -14,6 +14,10 @@ let package = Package(
     ],
     targets: [
         .target(name: "GrooveModel"),
+        .executableTarget(
+            name: "groovemate-render",
+            dependencies: ["GrooveModel", "GrooveBrain", "GrooveEngine"]
+        ),
         .target(name: "GrooveBrain", dependencies: ["GrooveModel"]),
         .target(name: "GrooveEngine", dependencies: ["GrooveModel"]),
         .testTarget(name: "GrooveBrainTests", dependencies: ["GrooveBrain"]),
