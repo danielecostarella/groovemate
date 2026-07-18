@@ -1,4 +1,5 @@
 import SwiftUI
+import GrooveModel
 
 @main
 struct GrooveMateApp: App {
@@ -17,6 +18,28 @@ struct RootView: View {
     @Environment(GrooveSession.self) private var session
 
     var body: some View {
+        content
+            .onAppear(perform: applyLaunchArguments)
+    }
+
+    /// Dev/verification hook: `-persona rock [-autoplay]` skips the picker.
+    private func applyLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        guard let i = args.firstIndex(of: "-persona"), i + 1 < args.count,
+              let persona = DrummerPersona.all.first(where: { $0.id == args[i + 1] })
+        else { return }
+        session.select(persona)
+        if args.contains("-autoplay") {
+            Task { @MainActor in
+                while session.engineState == .warmingUp {
+                    try? await Task.sleep(for: .milliseconds(100))
+                }
+                session.play()
+            }
+        }
+    }
+
+    private var content: some View {
         ZStack {
             Color.stage.ignoresSafeArea()
             if session.persona == nil {
