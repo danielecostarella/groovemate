@@ -1,0 +1,37 @@
+name: GrooveMate
+options:
+  bundleIdPrefix: com.danielecostarella
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+packages:
+  GrooveKit:
+    path: Packages/GrooveKit
+
+targets:
+  GrooveMate:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: GrooveKit
+        products:
+          - GrooveModel
+          - GrooveBrain
+          - GrooveEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.danielecostarella.groovemate
+        TARGETED_DEVICE_FAMILY: "1,2"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        GENERATE_INFOPLIST_FILE: YES
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+        SWIFT_VERSION: 5.10
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_PREVIEWS: YES

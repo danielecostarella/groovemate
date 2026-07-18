@@ -1,0 +1,17 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# SPM
+.build/
+.swiftpm/
+
+# XcodeGen output (regenerate with `xcodegen`)
+GrooveMate.xcodeproj/
+
+# macOS
+.DS_Store
