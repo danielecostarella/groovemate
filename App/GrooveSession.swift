@@ -59,20 +59,41 @@ final class GrooveSession {
         core = DrummerCore(spec: DrummerPersona.all[0].spec)
     }
 
+    /// The acoustic kit is shared across personas (only the room changes);
+    /// load it once and keep it.
+    private var cachedKit: (any DrumKit)?
+
     func select(_ persona: DrummerPersona) {
         let wasPlaying = isPlaying
         stop()
         self.persona = persona
         core.spec = persona.spec
+        if let kit = cachedKit {
+            installKit(kit, room: persona.tone.room, resume: wasPlaying)
+            return
+        }
         engineState = .warmingUp
         let tone = persona.tone
         Task.detached(priority: .userInitiated) { [weak self] in
-            let kit = SynthDrumKit(tone: tone)
+            let kit = Self.loadKit(fallbackTone: tone)
             await self?.installKit(kit, room: tone.room, resume: wasPlaying)
         }
     }
 
-    private func installKit(_ kit: SynthDrumKit, room: Double, resume: Bool) {
+    /// Real recorded drums (MuldjordKit, CC-BY 4.0) bundled with the app;
+    /// the synthesized kit only exists as a safety net.
+    private nonisolated static func loadKit(fallbackTone: KitTone) -> any DrumKit {
+        if let base = Bundle.main.resourceURL {
+            let url = base.appendingPathComponent("DrumKits/MuldjordKit")
+            if let kit = try? SampledDrumKit(directory: url) {
+                return kit
+            }
+        }
+        return SynthDrumKit(tone: fallbackTone)
+    }
+
+    private func installKit(_ kit: any DrumKit, room: Double, resume: Bool) {
+        cachedKit = kit
         if let engine {
             engine.setKit(kit)
             engine.setRoom(room)
