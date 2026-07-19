@@ -24,15 +24,21 @@ targets:
           - GrooveModel
           - GrooveBrain
           - GrooveEngine
+    info:
+      path: App/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIUserInterfaceStyle: Dark
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad:
+          [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown,
+           UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSMicrophoneUsageDescription: GrooveMate uses the microphone so you can talk to your drummer.
+        NSSpeechRecognitionUsageDescription: Voice commands are transcribed on your device to control the drummer. Nothing leaves your iPhone.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.danielecostarella.groovemate
         TARGETED_DEVICE_FAMILY: "1,2"
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
-        GENERATE_INFOPLIST_FILE: YES
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
         SWIFT_VERSION: 5.10

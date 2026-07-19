@@ -50,7 +50,8 @@ final class GrooveSession {
 
     private let core: DrummerCore
     private var engine: DrumEngine?
-    private let parser = CommandParser()
+    private let interpreter = CommandInterpreter()
+    let voice = VoiceCommandListener()
     private var positionTimer: Timer?
     private var ackTask: Task<Void, Never>?
     private var tapTimes: [Date] = []
@@ -148,9 +149,27 @@ final class GrooveSession {
 
     func send(command text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        let result = parser.apply(text, to: core.spec)
-        core.spec = result.spec
-        show(ack: result.acknowledgement)
+        Task { [interpreter, core] in
+            let result = await interpreter.apply(text, to: core.spec)
+            core.spec = result.spec
+            show(ack: result.acknowledgement)
+        }
+    }
+
+    /// Tap the mic: first tap starts on-device listening, second tap sends
+    /// whatever was heard to the drummer.
+    func toggleVoice() {
+        Task {
+            if let finalText = await voice.toggle() {
+                if let problem = voice.problem {
+                    show(ack: problem)
+                } else if !finalText.trimmingCharacters(in: .whitespaces).isEmpty {
+                    send(command: finalText)
+                }
+            } else if let problem = voice.problem {
+                show(ack: problem)
+            }
+        }
     }
 
     private func show(ack: String) {

@@ -7,6 +7,11 @@ public struct ParsedCommand: Sendable {
     /// Human-readable descriptions of what changed, for UI acknowledgement.
     public var changes: [String]
 
+    public init(spec: GrooveSpec, changes: [String]) {
+        self.spec = spec
+        self.changes = changes
+    }
+
     public var acknowledgement: String {
         changes.isEmpty ? "I didn't catch that — try style, tempo, or feel words." : "Okay — " + changes.joined(separator: ", ") + "."
     }

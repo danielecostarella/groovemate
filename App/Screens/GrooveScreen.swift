@@ -153,12 +153,23 @@ struct GrooveScreen: View {
             }
             HStack(spacing: 12) {
                 playButton
-                CommandBar(text: $commandText) {
-                    session.send(command: commandText)
-                    commandText = ""
-                }
+                CommandBar(
+                    text: $commandText,
+                    isListening: session.voice.isListening,
+                    onMic: { session.toggleVoice() },
+                    onSend: {
+                        session.send(command: commandText)
+                        commandText = ""
+                    }
+                )
             }
             .frame(maxWidth: 560)
+            .onChange(of: session.voice.transcript) { _, new in
+                if session.voice.isListening { commandText = new }
+            }
+            .onChange(of: session.voice.isListening) { was, is_ in
+                if was && !is_ { commandText = "" }
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
