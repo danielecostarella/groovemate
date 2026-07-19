@@ -8,6 +8,8 @@ public struct TemplateEvent: Sendable {
     public var velocity: Double
     /// The event is only played when spec.complexity >= this.
     public var minComplexity: Double
+    /// The event disappears above this complexity (simple backbones give way to busier ones).
+    public var maxComplexity: Double
     /// Chance the drummer plays it on any given bar (ornaments < 1).
     public var probability: Double
     /// Accented notes resist the intensity curve (backbeats stay strong even when quiet).
@@ -15,12 +17,14 @@ public struct TemplateEvent: Sendable {
 
     public init(
         _ voice: DrumVoice, at position: Double, velocity: Double,
-        minComplexity: Double = 0, probability: Double = 1, accent: Bool = false
+        minComplexity: Double = 0, maxComplexity: Double = 1,
+        probability: Double = 1, accent: Bool = false
     ) {
         self.voice = voice
         self.position = position
         self.velocity = velocity
         self.minComplexity = minComplexity
+        self.maxComplexity = maxComplexity
         self.probability = probability
         self.accent = accent
     }
@@ -58,17 +62,21 @@ public enum PatternLibrary {
     }
 
     /// Straight-8s rock: kick 1 & 3(+), backbeat 2 & 4, 8th hats.
+    /// High complexity brings a 16th-note hat feel, barks and syncopated kicks.
     static let rock = GrooveTemplate(
         style: .rock, swingSubdivision: 0.5, timekeeper: .hatClosed,
-        events: eighthHats(accentQuarters: true) + [
+        events: eighthHats(accentQuarters: true) + sixteenthUpgrade(velocity: 0.28) + [
             TemplateEvent(.kick, at: 0.0, velocity: 0.95, accent: true),
             TemplateEvent(.kick, at: 2.0, velocity: 0.9, accent: true),
             TemplateEvent(.kick, at: 2.5, velocity: 0.75, minComplexity: 0.3),
             TemplateEvent(.kick, at: 3.5, velocity: 0.7, minComplexity: 0.55, probability: 0.7),
+            TemplateEvent(.kick, at: 1.75, velocity: 0.65, minComplexity: 0.75, probability: 0.55),
             TemplateEvent(.snare, at: 1.0, velocity: 0.95, accent: true),
             TemplateEvent(.snare, at: 3.0, velocity: 0.95, accent: true),
             TemplateEvent(.snareGhost, at: 1.75, velocity: 0.25, minComplexity: 0.6, probability: 0.5),
             TemplateEvent(.snareGhost, at: 3.75, velocity: 0.3, minComplexity: 0.7, probability: 0.4),
+            // Hat bark lifting into the next bar — the classic "spice" move.
+            TemplateEvent(.hatOpen, at: 3.5, velocity: 0.55, minComplexity: 0.65, probability: 0.45),
         ]
     )
 
@@ -129,14 +137,15 @@ public enum PatternLibrary {
         ]
     )
 
-    /// Modern pop: tight 8th hats, four-ish kick, rimshot color at low intensity.
+    /// Modern pop: tight 8th hats, four-ish kick, 16th color as it opens up.
     static let pop = GrooveTemplate(
         style: .pop, swingSubdivision: 0.25, timekeeper: .hatClosed,
-        events: eighthHats(accentQuarters: false) + [
+        events: eighthHats(accentQuarters: false) + sixteenthUpgrade(velocity: 0.24) + [
             TemplateEvent(.kick, at: 0.0, velocity: 0.95, accent: true),
             TemplateEvent(.kick, at: 1.5, velocity: 0.8, minComplexity: 0.25),
             TemplateEvent(.kick, at: 2.0, velocity: 0.9, accent: true),
             TemplateEvent(.kick, at: 3.5, velocity: 0.7, minComplexity: 0.5, probability: 0.6),
+            TemplateEvent(.kick, at: 2.75, velocity: 0.6, minComplexity: 0.8, probability: 0.5),
             TemplateEvent(.snare, at: 1.0, velocity: 0.9, accent: true),
             TemplateEvent(.snare, at: 3.0, velocity: 0.9, accent: true),
             TemplateEvent(.hatOpen, at: 3.5, velocity: 0.55, minComplexity: 0.6, probability: 0.5),
@@ -151,6 +160,14 @@ public enum PatternLibrary {
                 .hatClosed, at: pos,
                 velocity: onQuarter && accentQuarters ? 0.7 : 0.5
             )
+        }
+    }
+
+    /// The "e" and "a" 16ths that turn an 8th-note hat pattern into a 16th feel
+    /// once the drummer gets busy (played softer, like the weak hand).
+    private static func sixteenthUpgrade(velocity: Double) -> [TemplateEvent] {
+        stride(from: 0.25, to: 4.0, by: 0.5).map { pos in
+            TemplateEvent(.hatClosed, at: pos, velocity: velocity, minComplexity: 0.7, probability: 0.9)
         }
     }
 

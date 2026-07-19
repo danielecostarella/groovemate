@@ -13,14 +13,19 @@ struct CommandInterpreter {
     private let parser = CommandParser()
 
     func apply(_ text: String, to spec: GrooveSpec) async -> ParsedCommand {
+        // The rule parser always runs: it's instant and owns transport intent
+        // ("suona", "stop") in both languages.
+        let ruleResult = parser.apply(text, to: spec)
         #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
-            if let result = await applyWithFoundationModel(text, to: spec) {
-                return result
+            if var fmResult = await applyWithFoundationModel(text, to: spec) {
+                fmResult.wantsPlay = ruleResult.wantsPlay
+                fmResult.wantsStop = ruleResult.wantsStop
+                return fmResult
             }
         }
         #endif
-        return parser.apply(text, to: spec)
+        return ruleResult
     }
 }
 

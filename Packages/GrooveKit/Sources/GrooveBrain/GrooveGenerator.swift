@@ -18,7 +18,7 @@ public struct GrooveGenerator: Sendable {
         let isFillBar = spec.fillEveryBars > 0 && (index + 1) % spec.fillEveryBars == 0 && index > 0
         let barAfterFill = spec.fillEveryBars > 0 && index > 0 && index % spec.fillEveryBars == 0
 
-        var events = groove(from: template, spec: spec)
+        var events = groove(from: template, spec: spec, barIndex: index)
 
         if barAfterFill {
             // Land the fill: crash + solid kick on the downbeat, and skip the first timekeeper hit.
@@ -28,9 +28,10 @@ public struct GrooveGenerator: Sendable {
         }
 
         if isFillBar {
-            let fillStart = fillStartBeat(spec: spec)
+            let phrase = pickFillPhrase(spec: spec)
+            let fillStart = spec.beatsPerBar - phrase.beats
             events.removeAll { $0.position >= fillStart - 0.01 }
-            events.append(contentsOf: makeFill(from: fillStart, spec: spec))
+            events.append(contentsOf: playFill(phrase, from: fillStart, spec: spec))
         }
 
         events = swing(events, template: template, spec: spec)
@@ -41,15 +42,21 @@ public struct GrooveGenerator: Sendable {
 
     // MARK: - Groove body
 
-    private mutating func groove(from template: GrooveTemplate, spec: GrooveSpec) -> [GrooveEvent] {
+    private mutating func groove(from template: GrooveTemplate, spec: GrooveSpec, barIndex: Int) -> [GrooveEvent] {
         var out: [GrooveEvent] = []
         let escalate = spec.intensity > 0.8 && (spec.style == .rock || spec.style == .pop)
+        // Drummers phrase in fours: the last bar of the phrase lifts a little.
+        let phraseEnd = barIndex % 4 == 3
+        // Correlated dynamics: the whole bar breathes together, not note by note.
+        let barDrift = rng.gaussian() * 0.03
 
         for e in template.events {
-            guard spec.complexity >= e.minComplexity else { continue }
+            guard spec.complexity >= e.minComplexity, spec.complexity <= e.maxComplexity else { continue }
             if e.probability < 1 {
-                // Busier drummers take their optional ornaments more often.
-                let p = e.probability * (0.6 + 0.8 * spec.complexity)
+                // Busier drummers take their optional ornaments more often,
+                // and everyone ornaments more at the end of a phrase.
+                var p = e.probability * (0.6 + 0.8 * spec.complexity)
+                if phraseEnd { p *= 1.4 }
                 guard rng.unit() < min(p, 1) else { continue }
             }
 
@@ -59,7 +66,15 @@ public struct GrooveGenerator: Sendable {
                 voice = e.accent || e.position.truncatingRemainder(dividingBy: 1) == 0 ? .hatOpen : .hatClosed
             }
 
-            out.append(GrooveEvent(voice: voice, position: e.position, velocity: shapedVelocity(e, spec: spec)))
+            let velocity = min(max(shapedVelocity(e, spec: spec) * (1 + barDrift), 0.05), 1)
+            out.append(GrooveEvent(voice: voice, position: e.position, velocity: velocity))
+        }
+
+        // Phrase-end lift: a hat bark into bar 1, even without a fill scheduled.
+        if phraseEnd, spec.complexity > 0.35, spec.style != .jazz,
+           !out.contains(where: { $0.voice == .hatOpen && $0.position >= 3.4 }),
+           rng.unit() < 0.5 {
+            out.append(GrooveEvent(voice: .hatOpen, position: 3.5, velocity: 0.5 + 0.2 * spec.intensity))
         }
         return out
     }
@@ -73,35 +88,103 @@ public struct GrooveGenerator: Sendable {
 
     // MARK: - Fills
 
-    private func fillStartBeat(spec: GrooveSpec) -> Double {
-        // Bigger, busier drummers start fills earlier.
-        if spec.complexity > 0.75 && spec.intensity > 0.6 { return spec.beatsPerBar - 2 }
-        if spec.complexity < 0.3 { return spec.beatsPerBar - 0.5 }
-        return spec.beatsPerBar - 1
+    /// A fill is a phrase, not a ladder: authored gestures with accents, rests
+    /// and direction, so no two fill bars feel stamped from the same die.
+    struct FillPhrase {
+        /// Length in beats, counted back from the end of the bar.
+        var beats: Double
+        var minComplexity: Double
+        /// Prefer this phrase when the groove is swung.
+        var swung: Bool
+        /// (offset from fill start, voice, velocity, probability)
+        var strokes: [(Double, DrumVoice, Double, Double)]
     }
 
-    private mutating func makeFill(from start: Double, spec: GrooveSpec) -> [GrooveEvent] {
-        let end = spec.beatsPerBar
-        var out: [GrooveEvent] = []
-        // Descending voice ladder: snare → toms, weighted by how far into the fill we are.
-        let ladder: [DrumVoice] = [.snare, .tomHigh, .tomMid, .tomLow]
-        let triplet = spec.swing > 0.5
-        let step = triplet ? 1.0 / 3.0 : (spec.complexity > 0.5 ? 0.25 : 0.5)
+    private static let fillPhrases: [FillPhrase] = [
+        // Two quick hits into the downbeat — barely a fill, all attitude.
+        FillPhrase(beats: 0.5, minComplexity: 0, swung: false, strokes: [
+            (0.0, .snare, 0.7, 1), (0.25, .tomLow, 0.9, 1),
+        ]),
+        // Classic snare drag: ghost-ghost-ACCENT.
+        FillPhrase(beats: 0.5, minComplexity: 0, swung: false, strokes: [
+            (0.0, .snareGhost, 0.3, 1), (0.125, .snareGhost, 0.35, 1), (0.25, .snare, 0.95, 1),
+        ]),
+        // One-beat single-stroke run with a syncopated hole before the last note.
+        FillPhrase(beats: 1, minComplexity: 0.2, swung: false, strokes: [
+            (0.0, .snare, 0.8, 1), (0.25, .snare, 0.55, 0.8), (0.5, .tomMid, 0.75, 1), (0.75, .tomLow, 0.95, 1),
+        ]),
+        // "Down the stairs, skip a step": snare pair, rest, tom answer.
+        FillPhrase(beats: 1, minComplexity: 0.25, swung: false, strokes: [
+            (0.0, .snare, 0.85, 1), (0.25, .tomHigh, 0.6, 0.85), (0.625, .tomMid, 0.7, 1), (0.75, .tomLow, 0.9, 1),
+        ]),
+        // Kick-snare conversation, funk vocabulary.
+        FillPhrase(beats: 1, minComplexity: 0.35, swung: false, strokes: [
+            (0.0, .snare, 0.8, 1), (0.25, .kick, 0.75, 1), (0.375, .snareGhost, 0.35, 0.7),
+            (0.5, .snare, 0.6, 1), (0.75, .kick, 0.8, 1), (0.875, .snare, 0.9, 1),
+        ]),
+        // Two-beat build: rest first, then a rising run that lands hard.
+        FillPhrase(beats: 2, minComplexity: 0.45, swung: false, strokes: [
+            (0.5, .snareGhost, 0.35, 0.8), (0.75, .snare, 0.6, 1),
+            (1.0, .snare, 0.75, 1), (1.25, .tomHigh, 0.7, 1),
+            (1.5, .tomMid, 0.8, 1), (1.625, .tomMid, 0.55, 0.6), (1.75, .tomLow, 0.98, 1),
+        ]),
+        // Two-beat 16ths around the kit with accents on the moves, not every note.
+        FillPhrase(beats: 2, minComplexity: 0.6, swung: false, strokes: [
+            (0.0, .snare, 0.9, 1), (0.25, .snareGhost, 0.4, 0.9), (0.5, .snare, 0.6, 1), (0.75, .snare, 0.5, 0.8),
+            (1.0, .tomHigh, 0.85, 1), (1.25, .tomHigh, 0.5, 0.7), (1.5, .tomLow, 0.8, 1), (1.75, .tomLow, 0.95, 1),
+        ]),
+        // Triplet roll — the swung/blues answer.
+        FillPhrase(beats: 1, minComplexity: 0.2, swung: true, strokes: [
+            (0.0, .snare, 0.8, 1), (1.0 / 3, .snare, 0.6, 1), (2.0 / 3, .tomMid, 0.75, 1),
+        ]),
+        // Two-beat triplet tumble around the kit.
+        FillPhrase(beats: 2, minComplexity: 0.45, swung: true, strokes: [
+            (0.0, .snare, 0.85, 1), (1.0 / 3, .snareGhost, 0.4, 0.8), (2.0 / 3, .snare, 0.65, 1),
+            (1.0, .tomHigh, 0.8, 1), (4.0 / 3, .tomMid, 0.7, 1), (5.0 / 3, .tomLow, 0.95, 1),
+        ]),
+    ]
 
-        var pos = start
-        while pos < end - 0.001 {
-            let progress = (pos - start) / max(end - start, 0.001)
-            let voiceIndex = min(Int(progress * Double(ladder.count)), ladder.count - 1)
-            // Sparse fills drop some strokes; dense fills play through.
-            let keep = spec.complexity > 0.6 || rng.unit() < 0.85
-            if keep {
-                let vel = 0.55 + 0.35 * progress + 0.15 * spec.intensity
-                out.append(GrooveEvent(voice: ladder[voiceIndex], position: pos, velocity: min(vel, 1)))
-            }
-            pos += step
+    private var lastFillIndex = -1
+
+    private mutating func pickFillPhrase(spec: GrooveSpec) -> FillPhrase {
+        let swung = spec.swing > 0.45
+        var candidates = Self.fillPhrases.indices.filter { i in
+            let p = Self.fillPhrases[i]
+            guard spec.complexity >= p.minComplexity else { return false }
+            // Swung grooves prefer triplet phrases but can borrow straight ones; straight grooves never borrow triplets.
+            return swung || !p.swung
         }
-        // Keep the kick anchored under the fill.
-        out.append(GrooveEvent(voice: .kick, position: start == 0 ? 0 : start, velocity: 0.85))
+        // Don't play the same fill twice in a row if there's any alternative.
+        if candidates.count > 1 {
+            candidates.removeAll { $0 == lastFillIndex }
+        }
+        var index = candidates[Int(rng.unit() * Double(candidates.count)) % candidates.count]
+        // Swung grooves lean into their triplet vocabulary.
+        if swung, rng.unit() < 0.6, let tripIndex = candidates.first(where: { Self.fillPhrases[$0].swung }) {
+            index = tripIndex
+        }
+        lastFillIndex = index
+        return Self.fillPhrases[index]
+    }
+
+    private mutating func playFill(_ phrase: FillPhrase, from start: Double, spec: GrooveSpec) -> [GrooveEvent] {
+        var out: [GrooveEvent] = []
+        for (offset, voice, velocity, probability) in phrase.strokes {
+            if probability < 1, rng.unit() > probability { continue }
+            let progress = offset / max(phrase.beats, 0.001)
+            // Drummers push through fills: a hair ahead as the phrase develops.
+            let rush = -progress * 0.018 * (1 - spec.tightness * 0.5)
+            let vel = velocity * (0.8 + 0.35 * spec.intensity) + rng.gaussian() * 0.04
+            out.append(GrooveEvent(
+                voice: voice,
+                position: start + offset + rush,
+                velocity: min(max(vel, 0.1), 1)
+            ))
+        }
+        // Keep the kick anchored under longer fills so the bottom never drops out.
+        if phrase.beats >= 1, !phrase.strokes.contains(where: { $0.1 == .kick }) {
+            out.append(GrooveEvent(voice: .kick, position: start, velocity: 0.8))
+        }
         return out
     }
 

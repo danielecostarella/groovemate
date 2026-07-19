@@ -39,9 +39,14 @@ struct RootView: View {
         )
     }
 
-    /// Dev/verification hook: `-persona rock [-autoplay]` skips the picker.
+    /// Dev/verification hooks: `-persona rock [-autoplay]` skips the picker;
+    /// `-command "suona un ritmo rock a 120"` exercises the prompt flow.
     private func applyLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
+        if let c = args.firstIndex(of: "-command"), c + 1 < args.count {
+            session.send(command: args[c + 1])
+            return
+        }
         guard let i = args.firstIndex(of: "-persona"), i + 1 < args.count,
               let persona = DrummerPersona.all.first(where: { $0.id == args[i + 1] })
         else { return }

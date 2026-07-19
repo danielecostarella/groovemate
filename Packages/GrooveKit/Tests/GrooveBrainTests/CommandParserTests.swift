@@ -59,4 +59,44 @@ final class CommandParserTests: XCTestCase {
         XCTAssertEqual(r.spec.style, .blues)
         XCTAssertGreaterThanOrEqual(r.spec.swing, 0.6)
     }
+
+    // MARK: - Italian
+
+    func testItalianRockA120() {
+        let r = parser.apply("suona un ritmo rock a 120", to: GrooveSpec(style: .pop))
+        XCTAssertEqual(r.spec.style, .rock)
+        XCTAssertEqual(r.spec.bpm, 120)
+        XCTAssertTrue(r.wantsPlay)
+    }
+
+    func testItalianSimpler() {
+        let r = parser.apply("più semplice per favore", to: base)
+        XCTAssertLessThan(r.spec.complexity, base.complexity)
+    }
+
+    func testItalianEnergyAndTempo() {
+        let r = parser.apply("più forte e più veloce", to: base)
+        XCTAssertGreaterThan(r.spec.intensity, base.intensity)
+        XCTAssertGreaterThan(r.spec.bpm, base.bpm)
+    }
+
+    func testItalianRelaxedPocket() {
+        let r = parser.apply("rilassato, dietro al beat", to: base)
+        XCTAssertGreaterThan(r.spec.pocketOffset, 0)
+    }
+
+    func testItalianFills() {
+        XCTAssertEqual(parser.apply("stacco ogni 8 battute", to: base).spec.fillEveryBars, 8)
+        XCTAssertEqual(parser.apply("senza stacchi", to: base).spec.fillEveryBars, 0)
+    }
+
+    func testItalianStop() {
+        let r = parser.apply("fermati", to: base)
+        XCTAssertTrue(r.wantsStop)
+        XCTAssertFalse(r.wantsPlay)
+    }
+
+    func testPlayIntentEnglish() {
+        XCTAssertTrue(parser.apply("play a funky groove", to: base).wantsPlay)
+    }
 }

@@ -1,14 +1,15 @@
 import SwiftUI
 import GrooveModel
 
-/// First-run choice screen: a large-title list of drummers, one row each.
+/// First-run choice screen: tell the drummer what you want, or pick one by hand.
 struct DrummerPickerView: View {
     @Environment(GrooveSession.self) private var session
+    @State private var promptText = ""
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("A real player, on call. Change your mind anytime.")
+                Text("A real player, on call. Tell them what to play, or pick one.")
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(.secondary)
 
@@ -32,6 +33,45 @@ struct DrummerPickerView: View {
         }
         .background(Color.stage)
         .navigationTitle("Choose Your Drummer")
+        .safeAreaInset(edge: .bottom) { promptBar }
+    }
+
+    /// The fastest way in: "suona un ritmo rock a 120" hires the right
+    /// drummer, applies the request, and counts it in.
+    private var promptBar: some View {
+        VStack(spacing: 8) {
+            if let acknowledgement = session.acknowledgement {
+                Text(acknowledgement)
+                    .font(.system(.footnote, design: .rounded, weight: .medium))
+                    .foregroundStyle(Color.amber)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
+                    .background(Color.amber.opacity(0.12), in: Capsule())
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            CommandBar(
+                text: $promptText,
+                isListening: session.voice.isListening,
+                onMic: { session.toggleVoice() },
+                onSend: {
+                    session.send(command: promptText)
+                    promptText = ""
+                }
+            )
+            .frame(maxWidth: 560)
+            .onChange(of: session.voice.transcript) { _, new in
+                if session.voice.isListening { promptText = new }
+            }
+            .onChange(of: session.voice.isListening) { was, now in
+                if was && !now { promptText = "" }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .frame(maxWidth: .infinity)
+        .background(.ultraThinMaterial)
+        .animation(.spring(duration: 0.3), value: session.acknowledgement)
     }
 }
 

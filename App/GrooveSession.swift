@@ -10,6 +10,7 @@ final class DrummerCore: @unchecked Sendable {
     private let lock = NSLock()
     private var generator: GrooveGenerator
     private var _spec: GrooveSpec
+    private var _persona: DrummerPersona?
 
     init(spec: GrooveSpec, seed: UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)) {
         self.generator = GrooveGenerator(seed: seed)
@@ -21,9 +22,16 @@ final class DrummerCore: @unchecked Sendable {
         set { lock.withLock { _spec = newValue } }
     }
 
+    var persona: DrummerPersona? {
+        get { lock.withLock { _persona } }
+        set { lock.withLock { _persona = newValue } }
+    }
+
     func bar(index: Int) -> (bar: BarPerformance, bpm: Double) {
         lock.withLock {
-            (generator.bar(index: index, spec: _spec), _spec.bpm)
+            // The drummer's character filters whatever was dialed in.
+            let effective = _persona?.interpret(_spec) ?? _spec
+            return (generator.bar(index: index, spec: effective), effective.bpm)
         }
     }
 }
@@ -64,20 +72,21 @@ final class GrooveSession {
     /// load it once and keep it.
     private var cachedKit: (any DrumKit)?
 
-    func select(_ persona: DrummerPersona) {
-        let wasPlaying = isPlaying
+    func select(_ persona: DrummerPersona, applying spec: GrooveSpec? = nil, autoplay: Bool = false) {
+        let resume = isPlaying || autoplay
         stop()
         self.persona = persona
-        core.spec = persona.spec
+        core.persona = persona
+        core.spec = spec ?? persona.spec
         if let kit = cachedKit {
-            installKit(kit, room: persona.tone.room, resume: wasPlaying)
+            installKit(kit, room: persona.tone.room, resume: resume)
             return
         }
         engineState = .warmingUp
         let tone = persona.tone
         Task.detached(priority: .userInitiated) { [weak self] in
             let kit = Self.loadKit(fallbackTone: tone)
-            await self?.installKit(kit, room: tone.room, resume: wasPlaying)
+            await self?.installKit(kit, room: tone.room, resume: resume)
         }
     }
 
@@ -151,7 +160,19 @@ final class GrooveSession {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         Task { [interpreter, core] in
             let result = await interpreter.apply(text, to: core.spec)
-            core.spec = result.spec
+            if persona == nil {
+                // First prompt from the opening screen: hire the drummer whose
+                // repertoire fits, hand them the request, and count it in.
+                let match = DrummerPersona.bestMatch(for: result.spec.style)
+                select(match, applying: result.spec, autoplay: true)
+            } else {
+                core.spec = result.spec
+                if result.wantsStop {
+                    stop()
+                } else if result.wantsPlay {
+                    play()
+                }
+            }
             show(ack: result.acknowledgement)
         }
     }

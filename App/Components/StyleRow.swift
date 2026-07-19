@@ -1,8 +1,9 @@
 import SwiftUI
 import GrooveModel
 
-/// Style selection as a standard segmented control with a section label.
+/// Style selection limited to the current drummer's repertoire.
 struct StyleRow: View {
+    let styles: [Style]
     let selected: Style
     var select: (Style) -> Void
 
@@ -12,7 +13,7 @@ struct StyleRow: View {
                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                 .foregroundStyle(.primary)
             Picker("Style", selection: Binding(get: { selected }, set: select)) {
-                ForEach(Style.allCases) { style in
+                ForEach(styles) { style in
                     Text(style.displayName).tag(style)
                 }
             }

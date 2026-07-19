@@ -104,6 +104,7 @@ struct GrooveScreen: View {
     private var grooveCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             StyleRow(
+                styles: session.persona?.repertoire ?? Style.allCases,
                 selected: session.spec.style,
                 select: { style in
                     var s = session.spec
