@@ -1,36 +1,23 @@
 import SwiftUI
 import GrooveModel
 
-/// Horizontal style chips.
+/// Style selection as a standard segmented control with a section label.
 struct StyleRow: View {
     let selected: Style
     var select: (Style) -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Style")
+                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                .foregroundStyle(.primary)
+            Picker("Style", selection: Binding(get: { selected }, set: select)) {
                 ForEach(Style.allCases) { style in
-                    let isOn = style == selected
-                    Button {
-                        select(style)
-                    } label: {
-                        Text(style.displayName)
-                            .font(.system(.callout, design: .rounded, weight: .semibold))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 9)
-                            .background(
-                                isOn
-                                    ? AnyShapeStyle(LinearGradient(colors: [.amber, .ember], startPoint: .leading, endPoint: .trailing))
-                                    : AnyShapeStyle(Color.card),
-                                in: Capsule()
-                            )
-                            .foregroundStyle(isOn ? Color.stage : .white)
-                    }
-                    .buttonStyle(.plain)
+                    Text(style.displayName).tag(style)
                 }
             }
-            .padding(.horizontal, 2)
+            .pickerStyle(.segmented)
         }
-        .accessibilityLabel("Style")
+        .accessibilityElement(children: .contain)
     }
 }

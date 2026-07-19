@@ -1,71 +1,76 @@
 import SwiftUI
 import GrooveModel
 
+/// First-run choice screen: a large-title list of drummers, one row each.
 struct DrummerPickerView: View {
     @Environment(GrooveSession.self) private var session
 
-    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 14)]
-
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("GrooveMate")
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(Color.amber)
-                    .textCase(.uppercase)
-                    .kerning(2)
-                Text("Choose your drummer")
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 20) {
                 Text("A real player, on call. Change your mind anytime.")
-                    .font(.system(.callout, design: .rounded))
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(.secondary)
-                    .padding(.bottom, 12)
 
-                LazyVGrid(columns: columns, spacing: 14) {
+                VStack(spacing: 12) {
                     ForEach(DrummerPersona.all) { persona in
                         Button {
                             session.select(persona)
                         } label: {
-                            PersonaCard(persona: persona)
+                            PersonaRow(persona: persona)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityHint(Text(persona.tagline))
                     }
                 }
             }
-            .padding(20)
-            .frame(maxWidth: 700)
+            .padding(.horizontal, 20)
+            .padding(.top, 4)
+            .padding(.bottom, 24)
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
+        .background(Color.stage)
+        .navigationTitle("Choose Your Drummer")
     }
 }
 
-private struct PersonaCard: View {
+private struct PersonaRow: View {
     let persona: DrummerPersona
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 26, weight: .medium))
+                .font(.title2.weight(.medium))
                 .foregroundStyle(gradient)
-                .frame(width: 52, height: 52)
-                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
-            Text(persona.name)
-                .font(.system(.title3, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
-            Text(persona.tagline)
-                .font(.system(.footnote, design: .rounded))
-                .foregroundStyle(.secondary)
-                .lineLimit(2, reservesSpace: true)
+                .frame(width: 48, height: 48)
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(persona.name)
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(.primary)
+                Text(persona.tagline)
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 8)
+
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 20))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(Color.white.opacity(0.07))
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.06))
         )
-        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .hoverEffect(.lift)
     }
 

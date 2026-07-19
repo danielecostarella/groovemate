@@ -12,11 +12,11 @@ final class OfflineRenderTests: XCTestCase {
         for voice in DrumVoice.allCases {
             for velocity in [0.2, 0.6, 0.95] {
                 let (sample, gain) = kit.sample(for: voice, velocity: velocity, roundRobin: 1)
-                XCTAssertGreaterThan(sample.samples.count, 100, "\(voice)")
-                let peak = sample.samples.map(abs).max() ?? 0
+                XCTAssertGreaterThan(sample.frameCount, 100, "\(voice)")
+                let peak = sample.left.map(abs).max() ?? 0
                 XCTAssertGreaterThan(peak, 0.5, "\(voice) at \(velocity) should be normalized")
                 XCTAssertGreaterThan(gain, 0)
-                XCTAssertFalse(sample.samples.contains { $0.isNaN || $0.isInfinite }, "\(voice)")
+                XCTAssertFalse(sample.left.contains { $0.isNaN || $0.isInfinite }, "\(voice)")
             }
         }
     }
@@ -25,7 +25,7 @@ final class OfflineRenderTests: XCTestCase {
         let a = kit.sample(for: .snare, velocity: 0.9, roundRobin: 0).sample
         let b = kit.sample(for: .snare, velocity: 0.9, roundRobin: 1).sample
         XCTAssertFalse(a === b)
-        XCTAssertNotEqual(a.samples.prefix(2000), b.samples.prefix(2000))
+        XCTAssertNotEqual(a.left.prefix(2000), b.left.prefix(2000))
     }
 
     func testOfflineRenderProducesAudioWithOnsetsOnTheGrid() {

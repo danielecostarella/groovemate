@@ -28,10 +28,29 @@ if args.count >= 3 {
 let bars = args.count >= 4 ? Int(args[3]) ?? 8 : 8
 let bpmOverride = args.count >= 5 ? Double(args[4]) : nil
 
+// Prefer the real sampled kit (repo-relative or $GROOVEMATE_KIT); synth as fallback.
+func resolveKit() -> any DrumKit {
+    var candidates: [URL] = []
+    if let env = ProcessInfo.processInfo.environment["GROOVEMATE_KIT"] {
+        candidates.append(URL(fileURLWithPath: env))
+    }
+    let here = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    candidates.append(here.appendingPathComponent("Resources/DrumKits/MuldjordKit"))
+    candidates.append(here.appendingPathComponent("../../Resources/DrumKits/MuldjordKit"))
+    for url in candidates {
+        if let kit = try? SampledDrumKit(directory: url) {
+            print("using sampled kit: \(kit.name)")
+            return kit
+        }
+    }
+    print("sampled kit not found, falling back to synth")
+    return SynthDrumKit()
+}
+let kit = resolveKit()
+
 for persona in personas {
     var spec = persona.spec
     if let bpmOverride { spec.bpm = bpmOverride }
-    let kit = SynthDrumKit(tone: persona.tone)
     let renderer = OfflineRenderer(kit: kit)
     var gen = GrooveGenerator(seed: 20260718)
     let url = outDir.appendingPathComponent("groovemate-\(persona.id)-\(Int(spec.bpm))bpm.wav")

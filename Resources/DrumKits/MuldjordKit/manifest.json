@@ -1,0 +1,278 @@
+{
+  "name": "MuldjordKit",
+  "version": "2020-10-18 (FreePats stereo edition, curated subset)",
+  "license": "CC BY 4.0",
+  "attribution": "MuldjordKit by Lars Muldjord (drumgizmo.org), FreePats stereo edition by Roberto Gordo Saez (freepats.zenvoid.org). Licensed under Creative Commons Attribution 4.0 International.",
+  "url": "https://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html",
+  "sampleRate": 44100,
+  "voices": {
+    "kick": {
+      "layers": [
+        {
+          "files": [
+            "kick/kick-L0-R0.flac",
+            "kick/kick-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "kick/kick-L1-R0.flac",
+            "kick/kick-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "kick/kick-L2-R0.flac",
+            "kick/kick-L2-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "kick/kick-L3-R0.flac",
+            "kick/kick-L3-R1.flac"
+          ]
+        }
+      ]
+    },
+    "snare": {
+      "layers": [
+        {
+          "files": [
+            "snare/snare-L0-R0.flac",
+            "snare/snare-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "snare/snare-L1-R0.flac",
+            "snare/snare-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "snare/snare-L2-R0.flac",
+            "snare/snare-L2-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "snare/snare-L3-R0.flac",
+            "snare/snare-L3-R1.flac"
+          ]
+        }
+      ]
+    },
+    "snareGhost": {
+      "layers": [
+        {
+          "files": [
+            "snareGhost/snareGhost-L0-R0.flac",
+            "snareGhost/snareGhost-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "snareGhost/snareGhost-L1-R0.flac",
+            "snareGhost/snareGhost-L1-R1.flac"
+          ]
+        }
+      ]
+    },
+    "snareRim": {
+      "layers": [
+        {
+          "files": [
+            "snareRim/snareRim-L0-R0.flac",
+            "snareRim/snareRim-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "snareRim/snareRim-L1-R0.flac",
+            "snareRim/snareRim-L1-R1.flac"
+          ]
+        }
+      ]
+    },
+    "hatClosed": {
+      "layers": [
+        {
+          "files": [
+            "hatClosed/hatClosed-L0-R0.flac",
+            "hatClosed/hatClosed-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatClosed/hatClosed-L1-R0.flac",
+            "hatClosed/hatClosed-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatClosed/hatClosed-L2-R0.flac",
+            "hatClosed/hatClosed-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "hatOpen": {
+      "layers": [
+        {
+          "files": [
+            "hatOpen/hatOpen-L0-R0.flac",
+            "hatOpen/hatOpen-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatOpen/hatOpen-L1-R0.flac",
+            "hatOpen/hatOpen-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatOpen/hatOpen-L2-R0.flac",
+            "hatOpen/hatOpen-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "hatPedal": {
+      "layers": [
+        {
+          "files": [
+            "hatPedal/hatPedal-L0-R0.flac",
+            "hatPedal/hatPedal-L0-R1.flac"
+          ]
+        }
+      ]
+    },
+    "tomHigh": {
+      "layers": [
+        {
+          "files": [
+            "tomHigh/tomHigh-L0-R0.flac",
+            "tomHigh/tomHigh-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomHigh/tomHigh-L1-R0.flac",
+            "tomHigh/tomHigh-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomHigh/tomHigh-L2-R0.flac",
+            "tomHigh/tomHigh-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "tomMid": {
+      "layers": [
+        {
+          "files": [
+            "tomMid/tomMid-L0-R0.flac",
+            "tomMid/tomMid-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomMid/tomMid-L1-R0.flac",
+            "tomMid/tomMid-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomMid/tomMid-L2-R0.flac",
+            "tomMid/tomMid-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "tomLow": {
+      "layers": [
+        {
+          "files": [
+            "tomLow/tomLow-L0-R0.flac",
+            "tomLow/tomLow-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomLow/tomLow-L1-R0.flac",
+            "tomLow/tomLow-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "tomLow/tomLow-L2-R0.flac",
+            "tomLow/tomLow-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "ride": {
+      "layers": [
+        {
+          "files": [
+            "ride/ride-L0-R0.flac",
+            "ride/ride-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "ride/ride-L1-R0.flac",
+            "ride/ride-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "ride/ride-L2-R0.flac",
+            "ride/ride-L2-R1.flac"
+          ]
+        }
+      ]
+    },
+    "rideBell": {
+      "layers": [
+        {
+          "files": [
+            "rideBell/rideBell-L0-R0.flac",
+            "rideBell/rideBell-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "rideBell/rideBell-L1-R0.flac",
+            "rideBell/rideBell-L1-R1.flac"
+          ]
+        }
+      ]
+    },
+    "crash": {
+      "layers": [
+        {
+          "files": [
+            "crash/crash-L0-R0.flac",
+            "crash/crash-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "crash/crash-L1-R0.flac",
+            "crash/crash-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "crash/crash-L2-R0.flac",
+            "crash/crash-L2-R1.flac"
+          ]
+        }
+      ]
+    }
+  }
+}

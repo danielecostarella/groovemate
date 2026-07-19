@@ -18,8 +18,25 @@ struct RootView: View {
     @Environment(GrooveSession.self) private var session
 
     var body: some View {
-        content
-            .onAppear(perform: applyLaunchArguments)
+        NavigationStack {
+            DrummerPickerView()
+                .navigationDestination(isPresented: showsGroove) {
+                    GrooveScreen()
+                }
+        }
+        .tint(.amber)
+        .onAppear(perform: applyLaunchArguments)
+    }
+
+    /// Drives the standard push/pop: a selected persona pushes the groove
+    /// screen; the system back button (or swipe) deselects it.
+    private var showsGroove: Binding<Bool> {
+        Binding(
+            get: { session.persona != nil },
+            set: { isShown in
+                if !isShown { session.deselect() }
+            }
+        )
     }
 
     /// Dev/verification hook: `-persona rock [-autoplay]` skips the picker.
@@ -37,19 +54,6 @@ struct RootView: View {
                 session.play()
             }
         }
-    }
-
-    private var content: some View {
-        ZStack {
-            Color.stage.ignoresSafeArea()
-            if session.persona == nil {
-                DrummerPickerView()
-            } else {
-                GrooveScreen()
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
-            }
-        }
-        .animation(.spring(duration: 0.45), value: session.persona?.id)
     }
 }
 

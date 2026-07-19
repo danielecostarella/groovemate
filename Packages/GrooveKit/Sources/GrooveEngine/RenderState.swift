@@ -122,26 +122,27 @@ final class RenderState: @unchecked Sendable {
         var v = 0
         while v < active.count {
             var a = active[v]
-            let samples = a.sample.samples
+            let count = a.sample.frameCount
             var i = 0
             var finished = false
-            samples.withUnsafeBufferPointer { buf in
-                while i < frameCount {
-                    if a.pos >= 0 {
-                        if a.pos >= buf.count || a.fade < 0.001 {
-                            finished = true
-                            break
+            a.sample.left.withUnsafeBufferPointer { lBuf in
+                a.sample.right.withUnsafeBufferPointer { rBuf in
+                    while i < frameCount {
+                        if a.pos >= 0 {
+                            if a.pos >= count || a.fade < 0.001 {
+                                finished = true
+                                break
+                            }
+                            outL[i] += lBuf[a.pos] * a.fade * a.gainL
+                            outR[i] += rBuf[a.pos] * a.fade * a.gainR
+                            if a.choked { a.fade *= chokeFadeStep }
                         }
-                        let s = buf[a.pos] * a.fade
-                        outL[i] += s * a.gainL
-                        outR[i] += s * a.gainR
-                        if a.choked { a.fade *= chokeFadeStep }
+                        a.pos += 1
+                        i += 1
                     }
-                    a.pos += 1
-                    i += 1
                 }
             }
-            if finished || a.pos >= samples.count {
+            if finished || a.pos >= count {
                 active.remove(at: v)
             } else {
                 active[v] = a
@@ -168,15 +169,16 @@ struct TriggerFactory {
     }
 
     mutating func triggers(for bar: BarPerformance, barStart: Int64, samplesPerBeat: Double) -> [Trigger] {
-        bar.events.map { e in
+        let baked = kit.usesBakedStereoImage
+        return bar.events.map { e in
             let rr = (roundRobin[e.voice] ?? 0) + 1
             roundRobin[e.voice] = rr
             let (sample, gain) = kit.sample(for: e.voice, velocity: e.velocity, roundRobin: rr)
             return Trigger(
                 sampleTime: barStart + Int64(e.position * samplesPerBeat),
                 sample: sample,
-                gain: gain * VoiceMix.level(e.voice),
-                pan: VoiceMix.pan(e.voice),
+                gain: baked ? gain : gain * VoiceMix.level(e.voice),
+                pan: baked ? 0 : VoiceMix.pan(e.voice),
                 chokeGroup: Int32(e.voice.chokeGroup ?? -1),
                 chokes: e.voice == .hatClosed || e.voice == .hatPedal
             )

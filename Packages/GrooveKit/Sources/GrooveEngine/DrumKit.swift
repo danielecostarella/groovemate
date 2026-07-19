@@ -1,15 +1,26 @@
 import GrooveModel
 
-/// A rendered, ready-to-play articulation. Mono samples; panned at mix time.
+/// A rendered, ready-to-play articulation, stereo. Synth voices are dual-mono
+/// (left === right) and rely on mix-time panning; sampled kits carry their
+/// recorded stereo image.
 public final class KitSample: @unchecked Sendable {
-    public let samples: [Float]
-    public init(samples: [Float]) {
-        self.samples = samples
+    public let left: [Float]
+    public let right: [Float]
+    public var frameCount: Int { left.count }
+
+    public init(left: [Float], right: [Float]) {
+        self.left = left
+        self.right = right
+    }
+
+    /// Dual-mono convenience for synthesized voices.
+    public convenience init(samples: [Float]) {
+        self.init(left: samples, right: samples)
     }
 }
 
-/// Anything that can hand the engine a buffer for a hit. `SynthDrumKit` today,
-/// sampled acoustic kits tomorrow — same contract.
+/// Anything that can hand the engine a buffer for a hit. `SampledDrumKit` for
+/// real acoustic recordings, `SynthDrumKit` as the dependency-free fallback.
 public protocol DrumKit: Sendable {
     var sampleRate: Double { get }
     /// Number of round-robin variants per articulation.
@@ -17,6 +28,13 @@ public protocol DrumKit: Sendable {
     /// The buffer for a hit. `velocity` selects the dynamic layer; the returned
     /// gain completes the velocity curve between layers.
     func sample(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> (sample: KitSample, gain: Float)
+    /// True when samples carry their own stereo image and per-voice mix-time
+    /// panning/levels should be skipped.
+    var usesBakedStereoImage: Bool { get }
+}
+
+public extension DrumKit {
+    var usesBakedStereoImage: Bool { false }
 }
 
 /// Static per-voice mix placement, drummer's perspective.
