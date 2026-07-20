@@ -51,9 +51,19 @@ final class GrooveSession {
     /// Transient acknowledgement from the command parser.
     private(set) var acknowledgement: String?
 
+    /// The stored, `@Observable`-tracked source of truth for the UI. `core`
+    /// (below) is a plain, lock-based mirror the audio scheduler reads from
+    /// its own thread — writing straight to `core.spec` would update playback
+    /// correctly but never notify SwiftUI, since Observation only tracks this
+    /// object's own stored properties, not state living inside another
+    /// reference type. Every mutation must go through this setter.
+    private var _spec: GrooveSpec
     var spec: GrooveSpec {
-        get { core.spec }
-        set { core.spec = newValue.clamped() }
+        get { _spec }
+        set {
+            _spec = newValue.clamped()
+            core.spec = _spec
+        }
     }
 
     private let core: DrummerCore
@@ -65,7 +75,9 @@ final class GrooveSession {
     private var tapTimes: [Date] = []
 
     init() {
-        core = DrummerCore(spec: DrummerPersona.all[0].spec)
+        let initial = DrummerPersona.all[0].spec
+        _spec = initial
+        core = DrummerCore(spec: initial)
     }
 
     /// The acoustic kit is shared across personas (only the room changes);
@@ -77,7 +89,7 @@ final class GrooveSession {
         stop()
         self.persona = persona
         core.persona = persona
-        core.spec = spec ?? persona.spec
+        self.spec = spec ?? persona.spec
         if let kit = cachedKit {
             installKit(kit, room: persona.tone.room, resume: resume)
             return
@@ -166,15 +178,15 @@ final class GrooveSession {
 
     func send(command text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        Task { [interpreter, core] in
-            let result = await interpreter.apply(text, to: core.spec)
+        Task { [interpreter] in
+            let result = await interpreter.apply(text, to: self.spec)
             if persona == nil {
                 // First prompt from the opening screen: hire the drummer whose
                 // repertoire fits, hand them the request, and count it in.
                 let match = DrummerPersona.bestMatch(for: result.spec.style)
                 select(match, applying: result.spec, autoplay: true)
             } else {
-                core.spec = result.spec
+                self.spec = result.spec
                 if result.wantsStop {
                     stop()
                 } else if result.wantsPlay {

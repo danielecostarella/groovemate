@@ -195,7 +195,14 @@ struct GrooveScreen: View {
                 }
             }
             .frame(width: 52, height: 52)
-            .glassBackground(in: Circle(), tint: .amber)
+            .background(
+                LinearGradient(
+                    colors: session.isPlaying ? [.ember, .amber] : [.amber, .ember],
+                    startPoint: .topLeading, endPoint: .bottomTrailing
+                ),
+                in: Circle()
+            )
+            .shadow(color: .ember.opacity(session.isPlaying ? 0.5 : 0.25), radius: 12, y: 3)
         }
         .buttonStyle(.plain)
         .disabled(session.engineState == .warmingUp)
