@@ -15,6 +15,7 @@ targets:
     platform: iOS
     sources:
       - App
+      - path: Shared
       - path: Resources/DrumKits
         type: folder
         buildPhase: resources
@@ -24,6 +25,8 @@ targets:
           - GrooveModel
           - GrooveBrain
           - GrooveEngine
+      - target: GrooveMateWidget
+        embed: true
     info:
       path: App/Info.plist
       properties:
@@ -35,6 +38,8 @@ targets:
            UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         NSMicrophoneUsageDescription: GrooveMate uses the microphone so you can talk to your drummer.
         NSSpeechRecognitionUsageDescription: Voice commands are transcribed on your device to control the drummer. Nothing leaves your iPhone.
+        UIBackgroundModes: [audio]
+        NSSupportsLiveActivities: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.danielecostarella.groovemate
@@ -45,3 +50,26 @@ targets:
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: GA7L6R86WU
         ENABLE_PREVIEWS: YES
+
+  GrooveMateWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - GrooveMateWidget
+      - path: Shared
+    info:
+      path: GrooveMateWidget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.danielecostarella.groovemate.widget
+        PRODUCT_NAME: GrooveMateWidget
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+        SWIFT_VERSION: 5.10
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: GA7L6R86WU
+        SKIP_INSTALL: YES

@@ -16,6 +16,7 @@ struct GrooveMateApp: App {
 
 struct RootView: View {
     @Environment(GrooveSession.self) private var session
+    @State private var didApplyLaunchArguments = false
 
     var body: some View {
         NavigationStack {
@@ -25,7 +26,13 @@ struct RootView: View {
                 }
         }
         .tint(.amber)
-        .onAppear(perform: applyLaunchArguments)
+        .onAppear {
+            // NavigationStack can fire onAppear more than once during initial
+            // layout; applying launch args twice would select/play twice.
+            guard !didApplyLaunchArguments else { return }
+            didApplyLaunchArguments = true
+            applyLaunchArguments()
+        }
     }
 
     /// Drives the standard push/pop: a selected persona pushes the groove

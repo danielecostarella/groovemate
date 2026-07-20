@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 import Observation
 import GrooveModel
@@ -63,21 +64,60 @@ final class GrooveSession {
         set {
             _spec = newValue.clamped()
             core.spec = _spec
+            if isPlaying {
+                liveActivity.update(personaName: persona?.name ?? "GrooveMate", spec: _spec, isPlaying: true)
+            }
         }
     }
 
     private let core: DrummerCore
     private var engine: DrumEngine?
     private let interpreter = CommandInterpreter()
+    private let liveActivity = GrooveLiveActivityController()
     let voice = VoiceCommandListener()
     private var positionTimer: Timer?
     private var ackTask: Task<Void, Never>?
     private var tapTimes: [Date] = []
+    // Set once in init and only read in deinit (both single-threaded relative
+    // to this instance's lifecycle); NotificationCenter's removeObserver is
+    // safe to call from any thread, so this doesn't need actor isolation.
+    private nonisolated(unsafe) var interruptionObservers: [NSObjectProtocol] = []
 
     init() {
         let initial = DrummerPersona.all[0].spec
         _spec = initial
         core = DrummerCore(spec: initial)
+        observeAudioSession()
+    }
+
+    deinit {
+        interruptionObservers.forEach(NotificationCenter.default.removeObserver)
+    }
+
+    /// A phone call, Siri, or another app taking the mic/speaker should pause
+    /// the drummer cleanly rather than glitch or keep a Live Activity showing
+    /// "playing" while nothing is actually audible. We don't auto-resume —
+    /// jumping back into a full-band groove right after a call ends would be
+    /// jarring; the user taps play when they're ready.
+    private func observeAudioSession() {
+        let center = NotificationCenter.default
+        let interruption = center.addObserver(
+            forName: AVAudioSession.interruptionNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            guard let type = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  type == AVAudioSession.InterruptionType.began.rawValue
+            else { return }
+            Task { @MainActor in self?.stop() }
+        }
+        let routeChange = center.addObserver(
+            forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            guard let reason = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                  reason == AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
+            else { return }
+            Task { @MainActor in self?.stop() }
+        }
+        interruptionObservers = [interruption, routeChange]
     }
 
     /// The acoustic kit is shared across personas (only the room changes);
@@ -164,6 +204,11 @@ final class GrooveSession {
         }
         RunLoop.main.add(timer, forMode: .common)
         positionTimer = timer
+        liveActivity.start(
+            personaName: persona?.name ?? "GrooveMate",
+            kitName: (cachedKit as? SampledDrumKit)?.name ?? "GrooveMate",
+            spec: _spec
+        )
     }
 
     func stop() {
@@ -172,6 +217,7 @@ final class GrooveSession {
         engine?.stop()
         isPlaying = false
         position = DrumEngine.PlaybackPosition(barIndex: 0, beat: 0, isPlaying: false)
+        liveActivity.stop()
     }
 
     // MARK: - Commands
