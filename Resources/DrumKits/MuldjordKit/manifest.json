@@ -11,25 +11,33 @@
         {
           "files": [
             "kick/kick-L0-R0.flac",
-            "kick/kick-L0-R1.flac"
+            "kick/kick-L0-R1.flac",
+            "kick/kick-L0-R2.flac",
+            "kick/kick-L0-R3.flac"
           ]
         },
         {
           "files": [
             "kick/kick-L1-R0.flac",
-            "kick/kick-L1-R1.flac"
+            "kick/kick-L1-R1.flac",
+            "kick/kick-L1-R2.flac",
+            "kick/kick-L1-R3.flac"
           ]
         },
         {
           "files": [
             "kick/kick-L2-R0.flac",
-            "kick/kick-L2-R1.flac"
+            "kick/kick-L2-R1.flac",
+            "kick/kick-L2-R2.flac",
+            "kick/kick-L2-R3.flac"
           ]
         },
         {
           "files": [
             "kick/kick-L3-R0.flac",
-            "kick/kick-L3-R1.flac"
+            "kick/kick-L3-R1.flac",
+            "kick/kick-L3-R2.flac",
+            "kick/kick-L3-R3.flac"
           ]
         }
       ]
@@ -39,25 +47,33 @@
         {
           "files": [
             "snare/snare-L0-R0.flac",
-            "snare/snare-L0-R1.flac"
+            "snare/snare-L0-R1.flac",
+            "snare/snare-L0-R2.flac",
+            "snare/snare-L0-R3.flac"
           ]
         },
         {
           "files": [
             "snare/snare-L1-R0.flac",
-            "snare/snare-L1-R1.flac"
+            "snare/snare-L1-R1.flac",
+            "snare/snare-L1-R2.flac",
+            "snare/snare-L1-R3.flac"
           ]
         },
         {
           "files": [
             "snare/snare-L2-R0.flac",
-            "snare/snare-L2-R1.flac"
+            "snare/snare-L2-R1.flac",
+            "snare/snare-L2-R2.flac",
+            "snare/snare-L2-R3.flac"
           ]
         },
         {
           "files": [
             "snare/snare-L3-R0.flac",
-            "snare/snare-L3-R1.flac"
+            "snare/snare-L3-R1.flac",
+            "snare/snare-L3-R2.flac",
+            "snare/snare-L3-R3.flac"
           ]
         }
       ]
@@ -67,13 +83,17 @@
         {
           "files": [
             "snareGhost/snareGhost-L0-R0.flac",
-            "snareGhost/snareGhost-L0-R1.flac"
+            "snareGhost/snareGhost-L0-R1.flac",
+            "snareGhost/snareGhost-L0-R2.flac",
+            "snareGhost/snareGhost-L0-R3.flac"
           ]
         },
         {
           "files": [
             "snareGhost/snareGhost-L1-R0.flac",
-            "snareGhost/snareGhost-L1-R1.flac"
+            "snareGhost/snareGhost-L1-R1.flac",
+            "snareGhost/snareGhost-L1-R2.flac",
+            "snareGhost/snareGhost-L1-R3.flac"
           ]
         }
       ]
@@ -83,13 +103,17 @@
         {
           "files": [
             "snareRim/snareRim-L0-R0.flac",
-            "snareRim/snareRim-L0-R1.flac"
+            "snareRim/snareRim-L0-R1.flac",
+            "snareRim/snareRim-L0-R2.flac",
+            "snareRim/snareRim-L0-R3.flac"
           ]
         },
         {
           "files": [
             "snareRim/snareRim-L1-R0.flac",
-            "snareRim/snareRim-L1-R1.flac"
+            "snareRim/snareRim-L1-R1.flac",
+            "snareRim/snareRim-L1-R2.flac",
+            "snareRim/snareRim-L1-R3.flac"
           ]
         }
       ]
@@ -99,19 +123,28 @@
         {
           "files": [
             "hatClosed/hatClosed-L0-R0.flac",
-            "hatClosed/hatClosed-L0-R1.flac"
+            "hatClosed/hatClosed-L0-R1.flac",
+            "hatClosed/hatClosed-L0-R2.flac",
+            "hatClosed/hatClosed-L0-R3.flac",
+            "hatClosed/hatClosed-L0-R4.flac"
           ]
         },
         {
           "files": [
             "hatClosed/hatClosed-L1-R0.flac",
-            "hatClosed/hatClosed-L1-R1.flac"
+            "hatClosed/hatClosed-L1-R1.flac",
+            "hatClosed/hatClosed-L1-R2.flac",
+            "hatClosed/hatClosed-L1-R3.flac",
+            "hatClosed/hatClosed-L1-R4.flac"
           ]
         },
         {
           "files": [
             "hatClosed/hatClosed-L2-R0.flac",
-            "hatClosed/hatClosed-L2-R1.flac"
+            "hatClosed/hatClosed-L2-R1.flac",
+            "hatClosed/hatClosed-L2-R2.flac",
+            "hatClosed/hatClosed-L2-R3.flac",
+            "hatClosed/hatClosed-L2-R4.flac"
           ]
         }
       ]
@@ -121,19 +154,28 @@
         {
           "files": [
             "hatOpen/hatOpen-L0-R0.flac",
-            "hatOpen/hatOpen-L0-R1.flac"
+            "hatOpen/hatOpen-L0-R1.flac",
+            "hatOpen/hatOpen-L0-R2.flac",
+            "hatOpen/hatOpen-L0-R3.flac",
+            "hatOpen/hatOpen-L0-R4.flac"
           ]
         },
         {
           "files": [
             "hatOpen/hatOpen-L1-R0.flac",
-            "hatOpen/hatOpen-L1-R1.flac"
+            "hatOpen/hatOpen-L1-R1.flac",
+            "hatOpen/hatOpen-L1-R2.flac",
+            "hatOpen/hatOpen-L1-R3.flac",
+            "hatOpen/hatOpen-L1-R4.flac"
           ]
         },
         {
           "files": [
             "hatOpen/hatOpen-L2-R0.flac",
-            "hatOpen/hatOpen-L2-R1.flac"
+            "hatOpen/hatOpen-L2-R1.flac",
+            "hatOpen/hatOpen-L2-R2.flac",
+            "hatOpen/hatOpen-L2-R3.flac",
+            "hatOpen/hatOpen-L2-R4.flac"
           ]
         }
       ]
@@ -143,19 +185,25 @@
         {
           "files": [
             "hatHalfOpen/hatHalfOpen-L0-R0.flac",
-            "hatHalfOpen/hatHalfOpen-L0-R1.flac"
+            "hatHalfOpen/hatHalfOpen-L0-R1.flac",
+            "hatHalfOpen/hatHalfOpen-L0-R2.flac",
+            "hatHalfOpen/hatHalfOpen-L0-R3.flac"
           ]
         },
         {
           "files": [
             "hatHalfOpen/hatHalfOpen-L1-R0.flac",
-            "hatHalfOpen/hatHalfOpen-L1-R1.flac"
+            "hatHalfOpen/hatHalfOpen-L1-R1.flac",
+            "hatHalfOpen/hatHalfOpen-L1-R2.flac",
+            "hatHalfOpen/hatHalfOpen-L1-R3.flac"
           ]
         },
         {
           "files": [
             "hatHalfOpen/hatHalfOpen-L2-R0.flac",
-            "hatHalfOpen/hatHalfOpen-L2-R1.flac"
+            "hatHalfOpen/hatHalfOpen-L2-R1.flac",
+            "hatHalfOpen/hatHalfOpen-L2-R2.flac",
+            "hatHalfOpen/hatHalfOpen-L2-R3.flac"
           ]
         }
       ]
@@ -165,7 +213,9 @@
         {
           "files": [
             "hatPedal/hatPedal-L0-R0.flac",
-            "hatPedal/hatPedal-L0-R1.flac"
+            "hatPedal/hatPedal-L0-R1.flac",
+            "hatPedal/hatPedal-L0-R2.flac",
+            "hatPedal/hatPedal-L0-R3.flac"
           ]
         }
       ]
@@ -175,19 +225,22 @@
         {
           "files": [
             "tomHigh/tomHigh-L0-R0.flac",
-            "tomHigh/tomHigh-L0-R1.flac"
+            "tomHigh/tomHigh-L0-R1.flac",
+            "tomHigh/tomHigh-L0-R2.flac"
           ]
         },
         {
           "files": [
             "tomHigh/tomHigh-L1-R0.flac",
-            "tomHigh/tomHigh-L1-R1.flac"
+            "tomHigh/tomHigh-L1-R1.flac",
+            "tomHigh/tomHigh-L1-R2.flac"
           ]
         },
         {
           "files": [
             "tomHigh/tomHigh-L2-R0.flac",
-            "tomHigh/tomHigh-L2-R1.flac"
+            "tomHigh/tomHigh-L2-R1.flac",
+            "tomHigh/tomHigh-L2-R2.flac"
           ]
         }
       ]
@@ -197,19 +250,22 @@
         {
           "files": [
             "tomMid/tomMid-L0-R0.flac",
-            "tomMid/tomMid-L0-R1.flac"
+            "tomMid/tomMid-L0-R1.flac",
+            "tomMid/tomMid-L0-R2.flac"
           ]
         },
         {
           "files": [
             "tomMid/tomMid-L1-R0.flac",
-            "tomMid/tomMid-L1-R1.flac"
+            "tomMid/tomMid-L1-R1.flac",
+            "tomMid/tomMid-L1-R2.flac"
           ]
         },
         {
           "files": [
             "tomMid/tomMid-L2-R0.flac",
-            "tomMid/tomMid-L2-R1.flac"
+            "tomMid/tomMid-L2-R1.flac",
+            "tomMid/tomMid-L2-R2.flac"
           ]
         }
       ]
@@ -219,19 +275,25 @@
         {
           "files": [
             "tomLow/tomLow-L0-R0.flac",
-            "tomLow/tomLow-L0-R1.flac"
+            "tomLow/tomLow-L0-R1.flac",
+            "tomLow/tomLow-L0-R2.flac",
+            "tomLow/tomLow-L0-R3.flac"
           ]
         },
         {
           "files": [
             "tomLow/tomLow-L1-R0.flac",
-            "tomLow/tomLow-L1-R1.flac"
+            "tomLow/tomLow-L1-R1.flac",
+            "tomLow/tomLow-L1-R2.flac",
+            "tomLow/tomLow-L1-R3.flac"
           ]
         },
         {
           "files": [
             "tomLow/tomLow-L2-R0.flac",
-            "tomLow/tomLow-L2-R1.flac"
+            "tomLow/tomLow-L2-R1.flac",
+            "tomLow/tomLow-L2-R2.flac",
+            "tomLow/tomLow-L2-R3.flac"
           ]
         }
       ]
@@ -241,19 +303,22 @@
         {
           "files": [
             "ride/ride-L0-R0.flac",
-            "ride/ride-L0-R1.flac"
+            "ride/ride-L0-R1.flac",
+            "ride/ride-L0-R2.flac"
           ]
         },
         {
           "files": [
             "ride/ride-L1-R0.flac",
-            "ride/ride-L1-R1.flac"
+            "ride/ride-L1-R1.flac",
+            "ride/ride-L1-R2.flac"
           ]
         },
         {
           "files": [
             "ride/ride-L2-R0.flac",
-            "ride/ride-L2-R1.flac"
+            "ride/ride-L2-R1.flac",
+            "ride/ride-L2-R2.flac"
           ]
         }
       ]
@@ -263,13 +328,15 @@
         {
           "files": [
             "rideBell/rideBell-L0-R0.flac",
-            "rideBell/rideBell-L0-R1.flac"
+            "rideBell/rideBell-L0-R1.flac",
+            "rideBell/rideBell-L0-R2.flac"
           ]
         },
         {
           "files": [
             "rideBell/rideBell-L1-R0.flac",
-            "rideBell/rideBell-L1-R1.flac"
+            "rideBell/rideBell-L1-R1.flac",
+            "rideBell/rideBell-L1-R2.flac"
           ]
         }
       ]
@@ -279,19 +346,22 @@
         {
           "files": [
             "crash/crash-L0-R0.flac",
-            "crash/crash-L0-R1.flac"
+            "crash/crash-L0-R1.flac",
+            "crash/crash-L0-R2.flac"
           ]
         },
         {
           "files": [
             "crash/crash-L1-R0.flac",
-            "crash/crash-L1-R1.flac"
+            "crash/crash-L1-R1.flac",
+            "crash/crash-L1-R2.flac"
           ]
         },
         {
           "files": [
             "crash/crash-L2-R0.flac",
-            "crash/crash-L2-R1.flac"
+            "crash/crash-L2-R1.flac",
+            "crash/crash-L2-R2.flac"
           ]
         }
       ]

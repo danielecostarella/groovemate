@@ -76,4 +76,57 @@ final class SampledDrumKitTests: XCTestCase {
         XCTAssertFalse(left.contains { $0.isNaN })
         XCTAssertFalse(right.contains { $0.isNaN })
     }
+
+    // MARK: - Round robin depth (the "machine gun" fix)
+
+    func testHeavilyRepeatedVoicesHaveDeepRoundRobin() {
+        // The closed hat and ghost-note snare get struck many times per bar;
+        // too few variants and the ear catches the repeat within a few bars.
+        XCTAssertGreaterThanOrEqual(kit.roundRobinCount, 4)
+    }
+
+    // MARK: - Velocity-layer crossfade (no hard timbre cutover)
+
+    func testMidVelocityBlendsTwoLayers() {
+        // Snare has 4 layers; a velocity that lands near an internal boundary
+        // should blend, not cut over.
+        let blended = kit.layeredSamples(for: .snare, velocity: 0.5, roundRobin: 0)
+        XCTAssertEqual(blended.count, 2, "a boundary-straddling hit should sound two layers at once")
+        for (_, gain) in blended {
+            XCTAssertGreaterThan(gain, 0)
+        }
+    }
+
+    func testDeepInsideALayerDoesNotBlend() {
+        // Just above the bottom of the softest snare layer: not near any boundary.
+        let single = kit.layeredSamples(for: .snare, velocity: 0.03, roundRobin: 0)
+        XCTAssertEqual(single.count, 1)
+    }
+
+    func testCrossfadeIsEqualPowerAtMidpoint() {
+        // hatClosed has 3 layers (boundary at v=1/3); 0.2833 sits exactly at
+        // the midpoint of the blend-up zone (30% of a layer's band, centered
+        // on the boundary) — both halves should carry ~equal weight there.
+        let blend = kit.layeredSamples(for: .hatClosed, velocity: 0.2833, roundRobin: 0)
+        XCTAssertEqual(blend.count, 2)
+        XCTAssertEqual(Double(blend[0].gain), Double(blend[1].gain), accuracy: 0.05)
+    }
+
+    func testCrossfadeShiftsWeightAcrossTheBoundary() {
+        // Just after entering the blend zone, the lower layer should dominate;
+        // just before finishing it, the upper layer should.
+        let early = kit.layeredSamples(for: .hatClosed, velocity: 0.24, roundRobin: 0)
+        let late = kit.layeredSamples(for: .hatClosed, velocity: 0.32, roundRobin: 0)
+        XCTAssertEqual(early.count, 2)
+        XCTAssertEqual(late.count, 2)
+        XCTAssertGreaterThan(early[0].gain, early[1].gain, "early in the blend, the lower layer should lead")
+        XCTAssertGreaterThan(late[1].gain, late[0].gain, "late in the blend, the upper layer should lead")
+    }
+
+    func testSingleLayerVoiceNeverBlends() {
+        // hatPedal has only one layer — nothing to blend into.
+        for v in [0.0, 0.3, 0.7, 1.0] {
+            XCTAssertEqual(kit.layeredSamples(for: .hatPedal, velocity: v, roundRobin: 0).count, 1)
+        }
+    }
 }

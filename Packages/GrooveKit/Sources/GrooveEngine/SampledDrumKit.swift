@@ -88,13 +88,55 @@ public struct SampledDrumKit: DrumKit {
 
     public func sample(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> (sample: KitSample, gain: Float) {
         let layers = voices[voice]!
+        let (index, _) = nearestLayer(count: layers.count, velocity: velocity)
+        return pick(layers[index], velocity: velocity, roundRobin: roundRobin)
+    }
+
+    /// Fraction of a layer's velocity band, on each side of the boundary,
+    /// that crossfades into the neighbor instead of cutting over.
+    private static let blendZone = 0.3
+
+    public func layeredSamples(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> [(sample: KitSample, gain: Float)] {
+        let layers = voices[voice]!
+        guard layers.count > 1 else { return [sample(for: voice, velocity: velocity, roundRobin: roundRobin)] }
+
+        let (index, fracIntoLayer) = nearestLayer(count: layers.count, velocity: velocity)
+        let distanceToTop = 1 - fracIntoLayer
+        let distanceToBottom = fracIntoLayer
+
+        // Near the top edge, blend up toward the next (harder) layer.
+        if distanceToTop < Self.blendZone, index + 1 < layers.count {
+            let t = 1 - (distanceToTop / Self.blendZone) // 0 at edge start → 1 at the boundary
+            let (lo, loGain) = pick(layers[index], velocity: velocity, roundRobin: roundRobin)
+            let (hi, hiGain) = pick(layers[index + 1], velocity: velocity, roundRobin: roundRobin + 1)
+            let angle = t * .pi / 2
+            return [(lo, loGain * Float(cos(angle))), (hi, hiGain * Float(sin(angle)))]
+        }
+        // Near the bottom edge, blend down toward the previous (softer) layer.
+        if distanceToBottom < Self.blendZone, index > 0 {
+            let t = 1 - (distanceToBottom / Self.blendZone) // 0 at edge start → 1 at the boundary
+            let (hi, hiGain) = pick(layers[index], velocity: velocity, roundRobin: roundRobin)
+            let (lo, loGain) = pick(layers[index - 1], velocity: velocity, roundRobin: roundRobin + 1)
+            let angle = t * .pi / 2
+            return [(hi, hiGain * Float(cos(angle))), (lo, loGain * Float(sin(angle)))]
+        }
+        return [pick(layers[index], velocity: velocity, roundRobin: roundRobin)]
+    }
+
+    /// Which layer `velocity` lands in, and how far through that layer's band it is (0...1).
+    private func nearestLayer(count: Int, velocity: Double) -> (index: Int, fraction: Double) {
         let v = min(max(velocity, 0), 1)
-        let layerIndex = min(Int(v * Double(layers.count)), layers.count - 1)
-        let layer = layers[layerIndex]
-        let sample = layer.variants[roundRobin % layer.variants.count]
+        let scaled = v * Double(count)
+        let index = min(Int(scaled), count - 1)
+        let fraction = scaled - Double(index)
+        return (index, fraction)
+    }
+
+    private func pick(_ layer: Layer, velocity: Double, roundRobin: Int) -> (sample: KitSample, gain: Float) {
+        let sample = layer.variants[((roundRobin % layer.variants.count) + layer.variants.count) % layer.variants.count]
         // Real layers already carry their natural loudness; the gain curve only
         // smooths dynamics inside a layer band.
-        let gain = Float(0.55 + 0.45 * v)
+        let gain = Float(0.55 + 0.45 * min(max(velocity, 0), 1))
         return (sample, gain)
     }
 

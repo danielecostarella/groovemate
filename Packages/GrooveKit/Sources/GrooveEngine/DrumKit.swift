@@ -28,6 +28,11 @@ public protocol DrumKit: Sendable {
     /// The buffer for a hit. `velocity` selects the dynamic layer; the returned
     /// gain completes the velocity curve between layers.
     func sample(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> (sample: KitSample, gain: Float)
+    /// The buffer(s) for a hit, blended when `velocity` falls near the border
+    /// between two recorded dynamic layers — so a swell in volume crossfades
+    /// between takes instead of jumping timbre at a hard cutover. Kits with a
+    /// single layer, or that don't model this, just return one sample.
+    func layeredSamples(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> [(sample: KitSample, gain: Float)]
     /// True when samples carry their own stereo image and per-voice mix-time
     /// panning/levels should be skipped.
     var usesBakedStereoImage: Bool { get }
@@ -35,6 +40,9 @@ public protocol DrumKit: Sendable {
 
 public extension DrumKit {
     var usesBakedStereoImage: Bool { false }
+    func layeredSamples(for voice: DrumVoice, velocity: Double, roundRobin: Int) -> [(sample: KitSample, gain: Float)] {
+        [sample(for: voice, velocity: velocity, roundRobin: roundRobin)]
+    }
 }
 
 /// Static per-voice mix placement, drummer's perspective.

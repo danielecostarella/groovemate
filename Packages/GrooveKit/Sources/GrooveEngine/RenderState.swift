@@ -178,19 +178,27 @@ struct TriggerFactory {
     mutating func triggers(for bar: BarPerformance, barStart: Int64, samplesPerBeat: Double) -> [Trigger] {
         let baked = kit.usesBakedStereoImage
         let sr = kit.sampleRate
-        return bar.events.map { e in
+        return bar.events.flatMap { e -> [Trigger] in
             let rr = (roundRobin[e.voice] ?? 0) + 1
             roundRobin[e.voice] = rr
-            let (sample, gain) = kit.sample(for: e.voice, velocity: e.velocity, roundRobin: rr)
-            return Trigger(
-                sampleTime: barStart + Int64(e.position * samplesPerBeat),
-                sample: sample,
-                gain: baked ? gain : gain * VoiceMix.level(e.voice),
-                pan: baked ? 0 : VoiceMix.pan(e.voice),
-                chokeGroup: Int32(e.voice.chokeGroup ?? -1),
-                chokes: e.voice == .hatClosed || e.voice == .hatPedal || e.voice == .hatHalfOpen,
-                selfChokeFrames: e.voice == .hatHalfOpen ? Int32(sr * 0.09) : nil
-            )
+            let sampleTime = barStart + Int64(e.position * samplesPerBeat)
+            let chokes = e.voice == .hatClosed || e.voice == .hatPedal || e.voice == .hatHalfOpen
+            let chokeGroup = Int32(e.voice.chokeGroup ?? -1)
+            let selfChokeFrames: Int32? = e.voice == .hatHalfOpen ? Int32(sr * 0.09) : nil
+            // Near a velocity-layer boundary this is 2 samples crossfaded into
+            // one hit; only the first carries the choke trigger (a hi-hat bark
+            // blended across layers should still choke as a single event).
+            return kit.layeredSamples(for: e.voice, velocity: e.velocity, roundRobin: rr).enumerated().map { i, layered in
+                Trigger(
+                    sampleTime: sampleTime,
+                    sample: layered.sample,
+                    gain: baked ? layered.gain : layered.gain * VoiceMix.level(e.voice),
+                    pan: baked ? 0 : VoiceMix.pan(e.voice),
+                    chokeGroup: chokeGroup,
+                    chokes: chokes && i == 0,
+                    selfChokeFrames: selfChokeFrames
+                )
+            }
         }
     }
 }

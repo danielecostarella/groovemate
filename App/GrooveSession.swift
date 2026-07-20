@@ -85,24 +85,29 @@ final class GrooveSession {
         engineState = .warmingUp
         let tone = persona.tone
         Task.detached(priority: .userInitiated) { [weak self] in
-            let kit = Self.loadKit(fallbackTone: tone)
-            await self?.installKit(kit, room: tone.room, resume: resume)
+            let (kit, warning) = Self.loadKit(fallbackTone: tone)
+            await self?.installKit(kit, room: tone.room, resume: resume, warning: warning)
         }
     }
 
-    /// Real recorded drums (MuldjordKit, CC-BY 4.0) bundled with the app;
-    /// the synthesized kit only exists as a safety net.
-    private nonisolated static func loadKit(fallbackTone: KitTone) -> any DrumKit {
-        if let base = Bundle.main.resourceURL {
-            let url = base.appendingPathComponent("DrumKits/MuldjordKit")
-            if let kit = try? SampledDrumKit(directory: url) {
-                return kit
-            }
+    /// Real recorded drums (MuldjordKit, CC-BY 4.0) bundled with the app. The
+    /// synthesized kit is a safety net, never a silent one — if we ever fall
+    /// back to it, the caller surfaces why instead of quietly serving a sound
+    /// the user has explicitly said they don't want.
+    private nonisolated static func loadKit(fallbackTone: KitTone) -> (kit: any DrumKit, warning: String?) {
+        guard let base = Bundle.main.resourceURL else {
+            return (SynthDrumKit(tone: fallbackTone), "Couldn't find the drum kit bundle — using a backup sound.")
         }
-        return SynthDrumKit(tone: fallbackTone)
+        let url = base.appendingPathComponent("DrumKits/MuldjordKit")
+        do {
+            let kit = try SampledDrumKit(directory: url)
+            return (kit, nil)
+        } catch {
+            return (SynthDrumKit(tone: fallbackTone), "The acoustic kit failed to load (\(error)) — using a backup sound.")
+        }
     }
 
-    private func installKit(_ kit: any DrumKit, room: Double, resume: Bool) {
+    private func installKit(_ kit: any DrumKit, room: Double, resume: Bool, warning: String? = nil) {
         cachedKit = kit
         if let engine {
             engine.setKit(kit)
@@ -115,6 +120,9 @@ final class GrooveSession {
             self.engine = engine
         }
         engineState = .ready
+        if let warning {
+            show(ack: warning, seconds: 8)
+        }
         if resume { play() }
     }
 
@@ -193,11 +201,11 @@ final class GrooveSession {
         }
     }
 
-    private func show(ack: String) {
+    private func show(ack: String, seconds: Double = 4) {
         acknowledgement = ack
         ackTask?.cancel()
         ackTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(4))
+            try? await Task.sleep(for: .seconds(seconds))
             guard !Task.isCancelled else { return }
             self?.acknowledgement = nil
         }
