@@ -31,14 +31,21 @@ struct TempoControl: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
-                Slider(value: $bpm, in: 40...220, step: 1) {
-                    Text("Tempo")
-                }
-                .tint(.amber)
+                CustomSlider(value: $bpm, range: 40...220, step: 1)
                 Image(systemName: "hare.fill")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Tempo")
+            .accessibilityValue("\(Int(bpm.rounded())) BPM")
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment: bpm = min(bpm + 1, 220)
+                case .decrement: bpm = max(bpm - 1, 40)
+                default: break
+                }
             }
         }
         .padding(16)

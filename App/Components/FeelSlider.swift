@@ -16,11 +16,17 @@ struct FeelSlider: View {
                     .foregroundStyle(value >= 0.5 ? Color.amber : .secondary)
             }
             .font(.system(.footnote, design: .rounded, weight: .semibold))
-            Slider(value: $value, in: 0...1)
-                .tint(.amber)
+            CustomSlider(value: $value)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(left) to \(right)")
         .accessibilityValue("\(Int(value * 100)) percent toward \(right)")
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: value = min(value + 0.05, 1)
+            case .decrement: value = max(value - 0.05, 0)
+            default: break
+            }
+        }
     }
 }
