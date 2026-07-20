@@ -43,7 +43,7 @@ public enum VoiceMix {
         switch voice {
         case .kick: return 0
         case .snare, .snareGhost, .snareRim: return 0.05
-        case .hatClosed, .hatOpen, .hatPedal: return -0.35
+        case .hatClosed, .hatOpen, .hatHalfOpen, .hatPedal: return -0.35
         case .tomHigh: return -0.2
         case .tomMid: return 0.05
         case .tomLow: return 0.3
@@ -60,6 +60,7 @@ public enum VoiceMix {
         case .snareRim: return 0.8
         case .hatClosed, .hatPedal: return 0.55
         case .hatOpen: return 0.6
+        case .hatHalfOpen: return 0.58
         case .tomHigh, .tomMid, .tomLow: return 0.9
         case .ride: return 0.5
         case .rideBell: return 0.65

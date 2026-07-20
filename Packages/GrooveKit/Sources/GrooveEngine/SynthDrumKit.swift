@@ -81,6 +81,9 @@ public struct SynthDrumKit: DrumKit {
             return hat(sr: sr, decay: 0.05 + 0.02 * hard, bright: bright, openness: 0, rng: &rng)
         case .hatOpen:
             return hat(sr: sr, decay: 0.35 + 0.25 * hard, bright: bright, openness: 1, rng: &rng)
+        case .hatHalfOpen:
+            // The engine self-chokes this voice ~90ms in regardless of tail length.
+            return hat(sr: sr, decay: 0.35 + 0.25 * hard, bright: bright, openness: 0.7, rng: &rng)
         case .hatPedal:
             return hat(sr: sr, decay: 0.035, bright: bright * 0.7, openness: 0, rng: &rng)
         case .tomHigh:

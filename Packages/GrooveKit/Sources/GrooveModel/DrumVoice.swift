@@ -6,6 +6,9 @@ public enum DrumVoice: String, CaseIterable, Codable, Sendable, Hashable {
     case snareRim
     case hatClosed
     case hatOpen
+    /// A "bark": struck open, immediately choked short by the foot. Distinct
+    /// from `hatOpen`, which rings until the next hat closes it.
+    case hatHalfOpen
     case hatPedal
     case tomHigh
     case tomMid
@@ -17,7 +20,7 @@ public enum DrumVoice: String, CaseIterable, Codable, Sendable, Hashable {
     /// Voices that choke each other when triggered (open hat is cut by a closed/pedal hat).
     public var chokeGroup: Int? {
         switch self {
-        case .hatClosed, .hatOpen, .hatPedal: return 1
+        case .hatClosed, .hatOpen, .hatHalfOpen, .hatPedal: return 1
         default: return nil
         }
     }

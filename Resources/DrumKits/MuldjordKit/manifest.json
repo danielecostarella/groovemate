@@ -138,6 +138,28 @@
         }
       ]
     },
+    "hatHalfOpen": {
+      "layers": [
+        {
+          "files": [
+            "hatHalfOpen/hatHalfOpen-L0-R0.flac",
+            "hatHalfOpen/hatHalfOpen-L0-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatHalfOpen/hatHalfOpen-L1-R0.flac",
+            "hatHalfOpen/hatHalfOpen-L1-R1.flac"
+          ]
+        },
+        {
+          "files": [
+            "hatHalfOpen/hatHalfOpen-L2-R0.flac",
+            "hatHalfOpen/hatHalfOpen-L2-R1.flac"
+          ]
+        }
+      ]
+    },
     "hatPedal": {
       "layers": [
         {

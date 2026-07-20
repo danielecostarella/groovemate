@@ -10,6 +10,10 @@ public struct TemplateEvent: Sendable {
     public var minComplexity: Double
     /// The event disappears above this complexity (simple backbones give way to busier ones).
     public var maxComplexity: Double
+    /// The event only plays at or above this energy — a chorus-only addition.
+    public var minIntensity: Double
+    /// The event disappears above this energy — a verse-only restraint.
+    public var maxIntensity: Double
     /// Chance the drummer plays it on any given bar (ornaments < 1).
     public var probability: Double
     /// Accented notes resist the intensity curve (backbeats stay strong even when quiet).
@@ -18,6 +22,7 @@ public struct TemplateEvent: Sendable {
     public init(
         _ voice: DrumVoice, at position: Double, velocity: Double,
         minComplexity: Double = 0, maxComplexity: Double = 1,
+        minIntensity: Double = 0, maxIntensity: Double = 1,
         probability: Double = 1, accent: Bool = false
     ) {
         self.voice = voice
@@ -25,6 +30,8 @@ public struct TemplateEvent: Sendable {
         self.velocity = velocity
         self.minComplexity = minComplexity
         self.maxComplexity = maxComplexity
+        self.minIntensity = minIntensity
+        self.maxIntensity = maxIntensity
         self.probability = probability
         self.accent = accent
     }
@@ -76,7 +83,9 @@ public enum PatternLibrary {
             TemplateEvent(.snareGhost, at: 1.75, velocity: 0.25, minComplexity: 0.6, probability: 0.5),
             TemplateEvent(.snareGhost, at: 3.75, velocity: 0.3, minComplexity: 0.7, probability: 0.4),
             // Hat bark lifting into the next bar — the classic "spice" move.
-            TemplateEvent(.hatOpen, at: 3.5, velocity: 0.55, minComplexity: 0.65, probability: 0.45),
+            TemplateEvent(.hatHalfOpen, at: 3.5, velocity: 0.55, minComplexity: 0.65, probability: 0.45),
+            // Chorus: an extra pickup kick pushes into beat 1.
+            TemplateEvent(.kick, at: 0.75, velocity: 0.6, minIntensity: 0.75, probability: 0.55),
         ]
     )
 
@@ -98,6 +107,8 @@ public enum PatternLibrary {
             TemplateEvent(.snareGhost, at: 3.25, velocity: 0.2, minComplexity: 0.5, probability: 0.6),
             TemplateEvent(.snare, at: 3.75, velocity: 0.5, minComplexity: 0.75, probability: 0.4),
             TemplateEvent(.hatOpen, at: 2.5, velocity: 0.6, minComplexity: 0.55, probability: 0.55),
+            // Chorus: one more syncopated kick, verse restraint keeps it out at low energy.
+            TemplateEvent(.kick, at: 3.25, velocity: 0.6, minComplexity: 0.4, minIntensity: 0.7, probability: 0.6),
         ]
     )
 
@@ -120,6 +131,8 @@ public enum PatternLibrary {
             TemplateEvent(.snareGhost, at: 2.5, velocity: 0.3, minComplexity: 0.4, probability: 0.5),
             TemplateEvent(.snare, at: 3.5, velocity: 0.4, minComplexity: 0.6, probability: 0.35),
             TemplateEvent(.kick, at: 3.5, velocity: 0.5, minComplexity: 0.7, probability: 0.3),
+            // Chorus: a bebop "bomb" — an unexpected accented kick.
+            TemplateEvent(.kick, at: 2.5, velocity: 0.55, minIntensity: 0.7, probability: 0.5),
         ]
     )
 
@@ -134,6 +147,8 @@ public enum PatternLibrary {
             TemplateEvent(.snare, at: 3.0, velocity: 0.9, accent: true),
             TemplateEvent(.snareGhost, at: 0.5, velocity: 0.25, minComplexity: 0.5, probability: 0.4),
             TemplateEvent(.snareGhost, at: 2.5, velocity: 0.25, minComplexity: 0.55, probability: 0.4),
+            // Chorus: extra shuffle kick pushing the turnaround.
+            TemplateEvent(.kick, at: 1.25, velocity: 0.55, minIntensity: 0.75, probability: 0.55),
         ]
     )
 
@@ -150,6 +165,8 @@ public enum PatternLibrary {
             TemplateEvent(.snare, at: 3.0, velocity: 0.9, accent: true),
             TemplateEvent(.hatOpen, at: 3.5, velocity: 0.55, minComplexity: 0.6, probability: 0.5),
             TemplateEvent(.snareGhost, at: 2.75, velocity: 0.2, minComplexity: 0.65, probability: 0.4),
+            // Chorus: a pickup 8th into beat 1.
+            TemplateEvent(.kick, at: 3.75, velocity: 0.55, minIntensity: 0.75, probability: 0.5),
         ]
     )
 

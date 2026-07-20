@@ -12,6 +12,10 @@ struct Trigger {
     var chokeGroup: Int32
     /// True when this trigger silences other members of its group (closed/pedal hat).
     var chokes: Bool
+    /// A "bark": the voice chokes itself after this many frames, independent of
+    /// whatever hits (or doesn't) after it. Nil = rings until externally choked
+    /// or the sample ends naturally.
+    var selfChokeFrames: Int32?
 }
 
 /// The audio-thread heart: consumes sample-stamped triggers, mixes active voices.
@@ -31,6 +35,7 @@ final class RenderState: @unchecked Sendable {
         var chokeGroup: Int32
         var choked: Bool
         var fade: Float
+        var selfChokeFrames: Int32?
     }
     private var active: [Active] = []
     private let maxActive = 64
@@ -110,7 +115,8 @@ final class RenderState: @unchecked Sendable {
                 gainR: t.gain * Float(sin(angle)),
                 chokeGroup: t.chokeGroup,
                 choked: false,
-                fade: 1
+                fade: 1,
+                selfChokeFrames: t.selfChokeFrames
             ))
         }
 
@@ -135,6 +141,7 @@ final class RenderState: @unchecked Sendable {
                             }
                             outL[i] += lBuf[a.pos] * a.fade * a.gainL
                             outR[i] += rBuf[a.pos] * a.fade * a.gainR
+                            if let bark = a.selfChokeFrames, a.pos >= Int(bark) { a.choked = true }
                             if a.choked { a.fade *= chokeFadeStep }
                         }
                         a.pos += 1
@@ -170,6 +177,7 @@ struct TriggerFactory {
 
     mutating func triggers(for bar: BarPerformance, barStart: Int64, samplesPerBeat: Double) -> [Trigger] {
         let baked = kit.usesBakedStereoImage
+        let sr = kit.sampleRate
         return bar.events.map { e in
             let rr = (roundRobin[e.voice] ?? 0) + 1
             roundRobin[e.voice] = rr
@@ -180,7 +188,8 @@ struct TriggerFactory {
                 gain: baked ? gain : gain * VoiceMix.level(e.voice),
                 pan: baked ? 0 : VoiceMix.pan(e.voice),
                 chokeGroup: Int32(e.voice.chokeGroup ?? -1),
-                chokes: e.voice == .hatClosed || e.voice == .hatPedal
+                chokes: e.voice == .hatClosed || e.voice == .hatPedal || e.voice == .hatHalfOpen,
+                selfChokeFrames: e.voice == .hatHalfOpen ? Int32(sr * 0.09) : nil
             )
         }
     }

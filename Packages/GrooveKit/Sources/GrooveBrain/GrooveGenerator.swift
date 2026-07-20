@@ -20,11 +20,19 @@ public struct GrooveGenerator: Sendable {
 
         var events = groove(from: template, spec: spec, barIndex: index)
 
+        let phraseStart = index % 4 == 0 && index > 0
         if barAfterFill {
             // Land the fill: crash + solid kick on the downbeat, and skip the first timekeeper hit.
             events.removeAll { $0.position < 0.26 && $0.voice == template.timekeeper }
             events.append(GrooveEvent(voice: .crash, position: 0, velocity: 0.65 + 0.3 * spec.intensity))
             events.append(GrooveEvent(voice: .kick, position: 0, velocity: 0.95))
+        } else if phraseStart, spec.intensity > 0.82, rng.unit() < 0.7 {
+            // Big arrival into a new 4-bar phrase: a chorus needs a crash (or,
+            // for a jazz drummer, a ride-bell accent instead of a wash).
+            events.removeAll { $0.position < 0.26 && $0.voice == template.timekeeper }
+            let arrival: DrumVoice = spec.style == .jazz ? .rideBell : .crash
+            events.append(GrooveEvent(voice: arrival, position: 0, velocity: 0.6 + 0.35 * spec.intensity))
+            events.append(GrooveEvent(voice: .kick, position: 0, velocity: 0.9))
         }
 
         if isFillBar {
@@ -44,7 +52,14 @@ public struct GrooveGenerator: Sendable {
 
     private mutating func groove(from template: GrooveTemplate, spec: GrooveSpec, barIndex: Int) -> [GrooveEvent] {
         var out: [GrooveEvent] = []
-        let escalate = spec.intensity > 0.8 && (spec.style == .rock || spec.style == .pop)
+        // At full throttle a hat-timekeeping drummer starts barking accents
+        // instead of just closing louder — a real pattern change, not just volume.
+        let barks = spec.intensity > 0.8 && template.timekeeper == .hatClosed
+        // A quiet ride player leans on the bell for accents once the energy climbs.
+        let ridesBell = spec.intensity > 0.75 && template.timekeeper == .ride
+        // Rimshot cracks the backbeat once the drummer commits to playing hard;
+        // a section-wide choice, not a per-note coin flip.
+        let rimshots = spec.intensity > 0.72 && spec.style != .jazz
         // Drummers phrase in fours: the last bar of the phrase lifts a little.
         let phraseEnd = barIndex % 4 == 3
         // Correlated dynamics: the whole bar breathes together, not note by note.
@@ -52,6 +67,7 @@ public struct GrooveGenerator: Sendable {
 
         for e in template.events {
             guard spec.complexity >= e.minComplexity, spec.complexity <= e.maxComplexity else { continue }
+            guard spec.intensity >= e.minIntensity, spec.intensity <= e.maxIntensity else { continue }
             if e.probability < 1 {
                 // Busier drummers take their optional ornaments more often,
                 // and everyone ornaments more at the end of a phrase.
@@ -61,9 +77,12 @@ public struct GrooveGenerator: Sendable {
             }
 
             var voice = e.voice
-            // At full throttle the rock/pop timekeeper opens up.
-            if escalate, voice == .hatClosed {
-                voice = e.accent || e.position.truncatingRemainder(dividingBy: 1) == 0 ? .hatOpen : .hatClosed
+            if barks, voice == .hatClosed {
+                voice = e.accent || e.position.truncatingRemainder(dividingBy: 1) == 0 ? .hatHalfOpen : .hatClosed
+            } else if ridesBell, voice == .ride, e.accent {
+                voice = .rideBell
+            } else if rimshots, voice == .snare, e.accent {
+                voice = .snareRim
             }
 
             let velocity = min(max(shapedVelocity(e, spec: spec) * (1 + barDrift), 0.05), 1)
@@ -72,9 +91,9 @@ public struct GrooveGenerator: Sendable {
 
         // Phrase-end lift: a hat bark into bar 1, even without a fill scheduled.
         if phraseEnd, spec.complexity > 0.35, spec.style != .jazz,
-           !out.contains(where: { $0.voice == .hatOpen && $0.position >= 3.4 }),
+           !out.contains(where: { ($0.voice == .hatOpen || $0.voice == .hatHalfOpen) && $0.position >= 3.4 }),
            rng.unit() < 0.5 {
-            out.append(GrooveEvent(voice: .hatOpen, position: 3.5, velocity: 0.5 + 0.2 * spec.intensity))
+            out.append(GrooveEvent(voice: .hatHalfOpen, position: 3.5, velocity: 0.5 + 0.2 * spec.intensity))
         }
         return out
     }
