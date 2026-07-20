@@ -186,11 +186,11 @@ struct GrooveScreen: View {
             ZStack {
                 if session.engineState == .warmingUp {
                     ProgressView()
-                        .tint(Color.amber)
+                        .tint(Color.stage)
                 } else {
                     Image(systemName: session.isPlaying ? "stop.fill" : "play.fill")
                         .font(.title3.weight(.bold))
-                        .foregroundStyle(Color.amber)
+                        .foregroundStyle(Color.stage)
                         .contentTransition(.symbolEffect(.replace))
                 }
             }
