@@ -195,7 +195,7 @@ struct GrooveScreen: View {
                 }
             }
             .frame(width: 52, height: 52)
-            .glassBackground(in: Circle(), tint: .amber, interactive: true)
+            .glassBackground(in: Circle(), tint: .amber)
         }
         .buttonStyle(.plain)
         .disabled(session.engineState == .warmingUp)
