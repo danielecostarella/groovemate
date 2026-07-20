@@ -26,20 +26,20 @@ struct TempoControl: View {
                 .tint(.amber)
                 .accessibilityLabel("Tap tempo")
             }
-            Slider(value: $bpm, in: 40...220, step: 1) {
-                Text("Tempo")
-            } minimumValueLabel: {
+            HStack(spacing: 8) {
                 Image(systemName: "tortoise.fill")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
-            } maximumValueLabel: {
+                Slider(value: $bpm, in: 40...220, step: 1) {
+                    Text("Tempo")
+                }
+                .tint(.amber)
                 Image(systemName: "hare.fill")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
-            .tint(.amber)
         }
         .padding(16)
         .background(Color.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
