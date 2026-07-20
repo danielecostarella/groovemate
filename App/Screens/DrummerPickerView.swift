@@ -8,12 +8,14 @@ struct DrummerPickerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text("A real player, on call. Tell them what to play, or pick one.")
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
 
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     ForEach(DrummerPersona.all) { persona in
                         Button {
                             session.select(persona)
@@ -26,8 +28,8 @@ struct DrummerPickerView: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 4)
-            .padding(.bottom, 24)
+            .padding(.top, 2)
+            .padding(.bottom, 12)
             .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
