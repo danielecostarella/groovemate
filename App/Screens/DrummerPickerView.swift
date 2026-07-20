@@ -46,7 +46,7 @@ struct DrummerPickerView: View {
                     .foregroundStyle(Color.amber)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
-                    .background(Color.amber.opacity(0.12), in: Capsule())
+                    .glassBackground(in: Capsule(), tint: .amber)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             CommandBar(
@@ -70,7 +70,6 @@ struct DrummerPickerView: View {
         .padding(.top, 8)
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial)
         .animation(.spring(duration: 0.3), value: session.acknowledgement)
     }
 }

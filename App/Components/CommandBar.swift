@@ -39,10 +39,10 @@ struct CommandBar: View {
             .disabled(text.isEmpty)
             .accessibilityLabel("Send")
         }
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .glassBackground(in: RoundedRectangle(cornerRadius: 24, style: .continuous), tint: isListening ? Color.ember : nil)
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(isListening ? Color.ember.opacity(0.5) : Color.white.opacity(0.1))
+                .strokeBorder(isListening ? Color.ember.opacity(0.5) : Color.clear)
         )
         .animation(.easeInOut(duration: 0.2), value: isListening)
     }

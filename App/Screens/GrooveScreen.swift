@@ -149,7 +149,7 @@ struct GrooveScreen: View {
                     .foregroundStyle(Color.amber)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
-                    .background(Color.amber.opacity(0.12), in: Capsule())
+                    .glassBackground(in: Capsule(), tint: .amber)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             HStack(spacing: 12) {
@@ -176,7 +176,6 @@ struct GrooveScreen: View {
         .padding(.top, 10)
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial)
         .animation(.spring(duration: 0.3), value: session.acknowledgement)
     }
 
@@ -185,25 +184,18 @@ struct GrooveScreen: View {
             session.togglePlayback()
         } label: {
             ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: session.isPlaying ? [.ember, .amber] : [.amber, .ember],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 52, height: 52)
-                    .shadow(color: .ember.opacity(session.isPlaying ? 0.5 : 0.25), radius: 12, y: 3)
                 if session.engineState == .warmingUp {
                     ProgressView()
-                        .tint(Color.stage)
+                        .tint(Color.amber)
                 } else {
                     Image(systemName: session.isPlaying ? "stop.fill" : "play.fill")
                         .font(.title3.weight(.bold))
-                        .foregroundStyle(Color.stage)
+                        .foregroundStyle(Color.amber)
                         .contentTransition(.symbolEffect(.replace))
                 }
             }
+            .frame(width: 52, height: 52)
+            .glassBackground(in: Circle(), tint: .amber, interactive: true)
         }
         .buttonStyle(.plain)
         .disabled(session.engineState == .warmingUp)
