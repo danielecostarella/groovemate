@@ -207,5 +207,6 @@ struct GrooveScreen: View {
         .buttonStyle(.plain)
         .disabled(session.engineState == .warmingUp)
         .accessibilityLabel(session.isPlaying ? "Stop" : "Play")
+        .accessibilityIdentifier("playButton")
     }
 }

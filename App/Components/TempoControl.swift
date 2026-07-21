@@ -13,6 +13,7 @@ struct TempoControl: View {
                     .foregroundStyle(.primary)
                     .contentTransition(.numericText())
                     .animation(.snappy, value: Int(bpm.rounded()))
+                    .accessibilityIdentifier("bpmValue")
                 Text("BPM")
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                     .foregroundStyle(.secondary)
@@ -25,6 +26,7 @@ struct TempoControl: View {
                 .buttonBorderShape(.capsule)
                 .tint(.amber)
                 .accessibilityLabel("Tap tempo")
+                .accessibilityIdentifier("tapTempoButton")
             }
             HStack(spacing: 8) {
                 Image(systemName: "tortoise.fill")

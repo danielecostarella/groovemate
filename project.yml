@@ -9,6 +9,21 @@ packages:
   GrooveKit:
     path: Packages/GrooveKit
 
+schemes:
+  GrooveMate:
+    build:
+      targets:
+        GrooveMate: all
+        GrooveMateUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - GrooveMateUITests
+    run:
+      config: Debug
+    archive:
+      config: Release
+
 targets:
   GrooveMate:
     type: application
@@ -50,6 +65,20 @@ targets:
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: GA7L6R86WU
         ENABLE_PREVIEWS: YES
+
+  GrooveMateUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - GrooveMateUITests
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: 5.10
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: GA7L6R86WU
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: GrooveMate
 
   GrooveMateWidget:
     type: app-extension
