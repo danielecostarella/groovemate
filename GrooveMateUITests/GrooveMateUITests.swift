@@ -86,4 +86,48 @@ final class GrooveMateUITests: XCTestCase {
         expectation(for: becomesStop, evaluatedWith: playButton)
         waitForExpectations(timeout: 5, handler: nil)
     }
+
+    // MARK: - Practice Mode
+
+    func testPracticePlanStartsAndBumpsTempo() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let practiceButton = app.buttons["practiceButton"]
+        XCTAssertTrue(practiceButton.waitForExistence(timeout: 5))
+        practiceButton.tap()
+
+        let planRow = app.buttons["plan-day2"] // 70 → 80 BPM, steps every 90s
+        XCTAssertTrue(planRow.waitForExistence(timeout: 5))
+        planRow.tap()
+
+        let bpmLabel = app.staticTexts["practiceBPM"]
+        XCTAssertTrue(bpmLabel.waitForExistence(timeout: 10))
+        XCTAssertEqual(bpmLabel.label, "70", "day2 starts at 70 BPM")
+
+        let stopButton = app.buttons["stopPracticeButton"]
+        XCTAssertTrue(stopButton.waitForExistence(timeout: 5))
+        stopButton.tap()
+
+        // Stopping early must return to the plan picker, not get stuck.
+        XCTAssertTrue(app.buttons["plan-day1"].waitForExistence(timeout: 5))
+    }
+
+    func testStoppedPracticeSessionAppearsInHistory() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        app.buttons["practiceButton"].tap()
+        let planRow = app.buttons["plan-day1"]
+        XCTAssertTrue(planRow.waitForExistence(timeout: 5))
+        planRow.tap()
+
+        let stopButton = app.buttons["stopPracticeButton"]
+        XCTAssertTrue(stopButton.waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 1.5)
+        stopButton.tap()
+
+        XCTAssertTrue(app.staticTexts["Day 1 — Lock the pocket"].waitForExistence(timeout: 5),
+                      "the just-stopped session should show up in recent history")
+    }
 }

@@ -39,7 +39,7 @@ struct RootView: View {
     /// screen; the system back button (or swipe) deselects it.
     private var showsGroove: Binding<Bool> {
         Binding(
-            get: { session.persona != nil },
+            get: { session.shouldShowGrooveScreen },
             set: { isShown in
                 if !isShown { session.deselect() }
             }

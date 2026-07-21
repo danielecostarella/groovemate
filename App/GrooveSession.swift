@@ -46,6 +46,12 @@ final class GrooveSession {
     }
 
     private(set) var persona: DrummerPersona?
+    /// Distinct from `persona != nil`: Practice Mode also drives a persona
+    /// through this session (to reuse the same engine) but must stay on its
+    /// own screen — RootView's auto-navigation to GrooveScreen watches this,
+    /// not `persona`, so borrowing the engine for practice can't yank the
+    /// user out of the practice screen.
+    private(set) var shouldShowGrooveScreen = false
     private(set) var engineState: EngineState = .warmingUp
     private(set) var isPlaying = false
     private(set) var position = DrumEngine.PlaybackPosition(barIndex: 0, beat: 0, isPlaying: false)
@@ -124,10 +130,11 @@ final class GrooveSession {
     /// load it once and keep it.
     private var cachedKit: (any DrumKit)?
 
-    func select(_ persona: DrummerPersona, applying spec: GrooveSpec? = nil, autoplay: Bool = false) {
+    func select(_ persona: DrummerPersona, applying spec: GrooveSpec? = nil, autoplay: Bool = false, navigate: Bool = true) {
         let resume = isPlaying || autoplay
         stop()
         self.persona = persona
+        shouldShowGrooveScreen = navigate
         core.persona = persona
         self.spec = spec ?? persona.spec
         if let kit = cachedKit {
@@ -181,6 +188,7 @@ final class GrooveSession {
     func deselect() {
         stop()
         persona = nil
+        shouldShowGrooveScreen = false
     }
 
     func togglePlayback() {

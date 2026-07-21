@@ -5,6 +5,7 @@ import GrooveModel
 struct DrummerPickerView: View {
     @Environment(GrooveSession.self) private var session
     @State private var promptText = ""
+    @State private var showsPractice = false
 
     var body: some View {
         ScrollView {
@@ -35,6 +36,20 @@ struct DrummerPickerView: View {
         }
         .background(Color.stage)
         .navigationTitle("Choose Your Drummer")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showsPractice = true
+                } label: {
+                    Image(systemName: "metronome")
+                }
+                .accessibilityLabel("Practice")
+                .accessibilityIdentifier("practiceButton")
+            }
+        }
+        .navigationDestination(isPresented: $showsPractice) {
+            PracticeView()
+        }
         .safeAreaInset(edge: .bottom) { promptBar }
     }
 
